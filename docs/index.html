@@ -251,7 +251,7 @@ document.getElementById('countdown-days').textContent = daysLeft;
 // Show arm measurement on Sundays
 if (new Date().getDay() === 0) document.getElementById('measure-section').style.display = 'block';
 
-const CONFIG = { owner:'Vadanje', repo:'personaDave', token: localStorage.getItem('gh_token')||'', path:'checkins/' };
+const CONFIG = { owner:'Vadanje', repo:'personaDave-data', token: localStorage.getItem('gh_token')||'', path:'checkins/' };
 if (!CONFIG.token) { const t = prompt('Enter your GitHub token (one-time setup):'); if(t){localStorage.setItem('gh_token',t);CONFIG.token=t;} }
 
 let allCheckins = [];
