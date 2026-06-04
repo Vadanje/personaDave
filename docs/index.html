@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Check-in</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, system-ui, sans-serif; background: #1a1a2e; color: #eee; padding: 16px; max-width: 480px; margin: 0 auto; }
+h1 { font-size: 1.4rem; margin-bottom: 16px; color: #00d4aa; }
+.field { margin-bottom: 14px; }
+label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 4px; }
+input[type="number"], input[type="time"], input[type="text"], textarea {
+  width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #333;
+  background: #16213e; color: #eee; font-size: 1rem;
+}
+textarea { height: 60px; resize: vertical; }
+.check-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #222; }
+.check-row input[type="checkbox"] { width: 22px; height: 22px; accent-color: #00d4aa; }
+.check-row label { margin: 0; color: #eee; font-size: 0.95rem; }
+.slider-row { padding: 8px 0; }
+.slider-row input[type="range"] { width: 100%; accent-color: #00d4aa; }
+.slider-val { text-align: center; font-size: 1.2rem; color: #00d4aa; font-weight: bold; }
+button { width: 100%; padding: 14px; border: none; border-radius: 8px; background: #00d4aa; color: #1a1a2e; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 16px; }
+button:disabled { background: #555; color: #999; }
+.status { text-align: center; margin-top: 12px; padding: 10px; border-radius: 8px; }
+.ok { background: #0a3d2a; color: #00d4aa; }
+.err { background: #3d0a0a; color: #ff6b6b; }
+.section { margin-top: 20px; padding-top: 12px; border-top: 1px solid #333; }
+.section h2 { font-size: 1rem; color: #00d4aa; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+<h1>Daily Check-in</h1>
+
+<div class="field">
+  <label>Date</label>
+  <input type="text" id="date" readonly>
+</div>
+
+<div class="field">
+  <label>Weight (kg)</label>
+  <input type="number" id="weight" step="0.1" placeholder="62.8">
+</div>
+
+<div class="section"><h2>Sleep</h2>
+  <div class="field">
+    <label>Bed time</label>
+    <input type="time" id="bed">
+  </div>
+  <div class="field">
+    <label>Wake time</label>
+    <input type="time" id="wake">
+  </div>
+</div>
+
+<div class="section"><h2>Ratings</h2>
+  <div class="slider-row">
+    <label>Energy</label>
+    <input type="range" id="energy" min="1" max="10" value="5" oninput="document.getElementById('energy-val').textContent=this.value">
+    <div class="slider-val" id="energy-val">5</div>
+  </div>
+  <div class="slider-row">
+    <label>Arm Recovery</label>
+    <input type="range" id="recovery" min="1" max="10" value="5" oninput="document.getElementById('recovery-val').textContent=this.value">
+    <div class="slider-val" id="recovery-val">5</div>
+  </div>
+</div>
+
+<div class="section"><h2>Adherence</h2>
+  <div class="check-row"><input type="checkbox" id="trained"><label for="trained">Trained today</label></div>
+  <div class="check-row"><input type="checkbox" id="supps"><label for="supps">All supplements taken</label></div>
+  <div class="check-row"><input type="checkbox" id="caffeine"><label for="caffeine">Caffeine cutoff respected</label></div>
+  <div class="check-row"><input type="checkbox" id="skincare-am"><label for="skincare-am">AM skincare done</label></div>
+  <div class="check-row"><input type="checkbox" id="skincare-pm"><label for="skincare-pm">PM skincare done</label></div>
+  <div class="check-row"><input type="checkbox" id="ate"><label for="ate">Ate consistently (no fasting)</label></div>
+  <div class="check-row"><input type="checkbox" id="wind-down"><label for="wind-down">Evening wind-down cutoff</label></div>
+</div>
+
+<div class="section"><h2>Training</h2>
+  <div class="field">
+    <label>Session (e.g. "Day A - Push + Arms")</label>
+    <input type="text" id="session" placeholder="Day A / rest / etc">
+  </div>
+</div>
+
+<div class="field" style="margin-top:16px">
+  <label>Notes</label>
+  <textarea id="notes" placeholder="Anything notable..."></textarea>
+</div>
+
+<button id="submit" onclick="submitCheckin()">Submit Check-in</button>
+<div id="status"></div>
+
+<script>
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('date').value = today;
+
+const CONFIG = {
+  owner: 'Vadanje',
+  repo: 'personaDave',
+  token: localStorage.getItem('gh_token') || '',
+  path: 'checkins/'
+};
+
+if (!CONFIG.token) {
+  const t = prompt('Enter your GitHub token (one-time setup):');
+  if (t) { localStorage.setItem('gh_token', t); CONFIG.token = t; }
+}
+
+function getFormData() {
+  return {
+    date: document.getElementById('date').value,
+    weight: document.getElementById('weight').value || null,
+    sleep: { bed: document.getElementById('bed').value, wake: document.getElementById('wake').value },
+    energy: parseInt(document.getElementById('energy').value),
+    arm_recovery: parseInt(document.getElementById('recovery').value),
+    trained: document.getElementById('trained').checked,
+    session: document.getElementById('session').value || null,
+    supps: document.getElementById('supps').checked,
+    caffeine_cutoff: document.getElementById('caffeine').checked,
+    skincare_am: document.getElementById('skincare-am').checked,
+    skincare_pm: document.getElementById('skincare-pm').checked,
+    ate_consistently: document.getElementById('ate').checked,
+    wind_down_cutoff: document.getElementById('wind-down').checked,
+    notes: document.getElementById('notes').value || null
+  };
+}
+
+async function submitCheckin() {
+  const btn = document.getElementById('submit');
+  const status = document.getElementById('status');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  const data = getFormData();
+  const filename = `${CONFIG.path}${data.date}.json`;
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+
+  try {
+    // Check if file exists
+    let sha = null;
+    const getResp = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${filename}`, {
+      headers: { 'Authorization': `token ${CONFIG.token}` }
+    });
+    if (getResp.ok) {
+      const existing = await getResp.json();
+      sha = existing.sha;
+    }
+
+    const body = { message: `checkin ${data.date}`, content, branch: 'main' };
+    if (sha) body.sha = sha;
+
+    const resp = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${filename}`, {
+      method: 'PUT',
+      headers: { 'Authorization': `token ${CONFIG.token}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    if (resp.ok) {
+      status.className = 'status ok';
+      status.textContent = '✓ Saved!';
+    } else {
+      const err = await resp.json();
+      throw new Error(err.message);
+    }
+  } catch (e) {
+    status.className = 'status err';
+    status.textContent = 'Error: ' + e.message;
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Submit Check-in';
+}
+</script>
+</body>
+</html>
