@@ -70,6 +70,11 @@ button:disabled{background:#555;color:#999}
 .sparkline .bar-label{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:.6rem;color:#aaa}
 .measure-field{background:#0f2a1f;border:1px solid #00d4aa33;border-radius:8px;padding:12px;margin-bottom:14px}
 .measure-field label{color:#00d4aa}
+.badge{display:inline-flex;align-items:center;gap:4px;background:#0f2a1f;border:1px solid #00d4aa44;border-radius:20px;padding:4px 10px;font-size:.75rem;color:#00d4aa}
+.badge .icon{font-size:1rem}
+.upcoming-goal{background:#16213e;border-radius:8px;padding:12px;margin-bottom:8px}
+.upcoming-goal h4{color:#eee;font-size:.9rem;margin-bottom:4px}
+.upcoming-goal p{color:#888;font-size:.8rem}
 </style>
 </head>
 <body>
@@ -81,6 +86,7 @@ button:disabled{background:#555;color:#999}
 <div class="tabs">
   <div class="tab active" onclick="switchTab('checkin')">Check-in</div>
   <div class="tab" onclick="switchTab('training')">Train</div>
+  <div class="tab" onclick="switchTab('goals')">Goals</div>
   <div class="tab" onclick="switchTab('protocol')">Protocol</div>
   <div class="tab" onclick="switchTab('review')">Review</div>
 </div>
@@ -161,6 +167,37 @@ button:disabled{background:#555;color:#999}
   <button onclick="submitTraining()" id="save-training-btn" style="display:none">Save Training Log</button>
   <div id="training-status"></div>
   <div class="section" id="training-history"><h2>Recent Sessions</h2></div>
+</div>
+
+<!-- GOALS -->
+<div class="page" id="page-goals">
+  <div id="xp-bar" style="margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <span style="font-size:.85rem;color:#aaa" id="rank-display">Bronze</span>
+      <span style="font-size:.85rem;color:#00d4aa" id="xp-display">0 XP</span>
+    </div>
+    <div style="height:8px;background:#333;border-radius:4px;overflow:hidden"><div id="xp-fill" style="height:100%;background:linear-gradient(90deg,#00d4aa,#00ff88);width:0%;border-radius:4px;transition:width .3s"></div></div>
+    <div style="font-size:.7rem;color:#666;text-align:right;margin-top:2px" id="xp-next"></div>
+  </div>
+
+  <div id="active-goal" style="background:#16213e;border-radius:12px;padding:16px;margin-bottom:16px;border:1px solid #00d4aa33">
+    <div style="font-size:.75rem;color:#888;text-transform:uppercase;letter-spacing:1px">Active Goal</div>
+    <h3 style="color:#00d4aa;margin:6px 0" id="goal-title"></h3>
+    <p style="font-size:.85rem;color:#aaa;font-style:italic;margin-bottom:12px" id="goal-why"></p>
+    <div id="goal-criteria"></div>
+    <div style="margin-top:12px;font-size:.8rem;color:#888" id="goal-deadline"></div>
+  </div>
+
+  <div id="achievements-section">
+    <h2 style="color:#00d4aa;font-size:1rem;margin-bottom:12px">🏆 Achievements</h2>
+    <div id="achievements-list" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+    <p style="font-size:.8rem;color:#666;margin-top:8px" id="no-achievements">Train consistently to unlock achievements.</p>
+  </div>
+
+  <div style="margin-top:20px">
+    <h2 style="color:#00d4aa;font-size:1rem;margin-bottom:12px">📋 Upcoming Phases</h2>
+    <div id="upcoming-goals"></div>
+  </div>
 </div>
 
 <!-- PROTOCOL -->
@@ -341,7 +378,7 @@ async function loadSession() {
     for (let s = 0; s < ex.sets; s++) {
       sets.push({ weight: prev?.sets?.[s]?.weight || '', reps: prev?.sets?.[s]?.reps || '' });
     }
-    return { name: ex.name, targetReps: ex.reps, sets, prev: prev ? prev.sets.map(s=>s.weight+'kg×'+s.reps).join(', ') : null };
+    return { name: ex.primary||ex.name, alternatives: ex.alternatives||[], targetReps: ex.reps, sets, prev: prev ? prev.sets.map(s=>s.weight+'kg×'+s.reps).join(', ') : null };
   });
 
   if (prevData) {
@@ -370,9 +407,12 @@ function renderExercises() {
   let html = '';
   exercises.forEach((ex, i) => {
     html += `<div class="exercise-entry">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <strong style="color:#eee;font-size:.9rem">${ex.name}</strong>
-        <span style="color:#888;font-size:.75rem">${ex.sets.length}×${ex.targetReps}</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <select style="flex:1;font-size:.85rem;padding:6px" onchange="exercises[${i}].name=this.value" id="ex-sel-${i}">
+          <option value="${ex.name}" selected>${ex.name}</option>`;
+    (ex.alternatives||[]).forEach(alt => { html += `<option value="${alt}">${alt}</option>`; });
+    html += `</select>
+        <span style="color:#888;font-size:.7rem;margin-left:8px">${ex.sets.length}×${ex.targetReps}</span>
       </div>`;
     if (ex.prev) html += `<div class="prev-data">Last: ${ex.prev}</div>`;
     ex.sets.forEach((s, j) => {
@@ -589,6 +629,56 @@ function toggleFullForm() {
 }
 
 renderQuickCard();
+
+// Goals & Gamification
+let goalsDB = {};
+async function loadGoals() {
+  try {
+    const resp = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/goals.json`,{headers:{'Authorization':`token ${CONFIG.token}`}});
+    if(!resp.ok)return;
+    const file = await resp.json();
+    goalsDB = JSON.parse(decodeURIComponent(escape(atob(file.content))));
+    renderGoals();
+  } catch(e) {}
+}
+
+function renderGoals() {
+  if (!goalsDB.active) return;
+  const g = goalsDB.active;
+  document.getElementById('goal-title').textContent = g.title;
+  document.getElementById('goal-why').textContent = `"${g.why}"`;
+  document.getElementById('goal-deadline').textContent = `Deadline: ${g.deadline}`;
+  let criteria = '';
+  (g.success_criteria||[]).forEach(c => { criteria += `<div style="font-size:.85rem;color:#ccc;padding:3px 0">☐ ${c}</div>`; });
+  document.getElementById('goal-criteria').innerHTML = criteria;
+
+  const xp = goalsDB.xp || 0;
+  const rank = goalsDB.rank || 'Bronze';
+  const thresholds = goalsDB.rank_thresholds || {};
+  const ranks = Object.keys(thresholds);
+  const currentIdx = ranks.indexOf(rank);
+  const nextRank = ranks[currentIdx + 1];
+  const nextThreshold = nextRank ? thresholds[nextRank] : thresholds[rank] * 2;
+  const prevThreshold = thresholds[rank];
+  const progress = Math.min(100, Math.max(0, ((xp - prevThreshold) / (nextThreshold - prevThreshold)) * 100));
+
+  document.getElementById('rank-display').textContent = rank;
+  document.getElementById('xp-display').textContent = `${xp} XP`;
+  document.getElementById('xp-fill').style.width = `${progress}%`;
+  document.getElementById('xp-next').textContent = nextRank ? `${nextThreshold - xp} XP to ${nextRank}` : 'Max rank!';
+
+  const achievements = goalsDB.achievements || [];
+  if (achievements.length) {
+    document.getElementById('no-achievements').style.display = 'none';
+    document.getElementById('achievements-list').innerHTML = achievements.map(a => `<div class="badge"><span class="icon">${a.icon}</span>${a.name}</div>`).join('');
+  }
+
+  let upcoming = '';
+  (goalsDB.upcoming||[]).forEach(u => { upcoming += `<div class="upcoming-goal"><h4>${u.title}</h4><p>${u.why}</p><p style="color:#00d4aa;font-size:.75rem">Target: ${u.deadline}</p></div>`; });
+  document.getElementById('upcoming-goals').innerHTML = upcoming;
+}
+
+loadGoals();
 
 // Load meals database
 let mealsDB = {};
