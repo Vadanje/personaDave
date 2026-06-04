@@ -1,0 +1,35 @@
+{
+  "breakfast": [
+    "4 eggs scrambled + toast",
+    "4 eggs fried + rice",
+    "Omelette with peppers + ham",
+    "4 boiled eggs + banana",
+    "Eggs on rice cakes"
+  ],
+  "lunch": [
+    "Rice + chicken breast (paprika, salt, pepper)",
+    "Potato wedges + steak strips",
+    "Rice + turkey mince (soy sauce, paprika)",
+    "Tuna + rice + lemon juice",
+    "SuperValu protein meal",
+    "Chicken thighs + rice"
+  ],
+  "dinner": [
+    "Rice + beef mince (paprika, soy sauce, peppers)",
+    "Chicken thighs + potato (oven, lemon, oregano)",
+    "Salmon fillet + rice",
+    "Slow-cooked beef shin over rice",
+    "SuperValu protein meal",
+    "Steak + eggs + potato wedges",
+    "Turkey mince stir-fry + rice (soy, ginger, peppers)"
+  ],
+  "snack": [
+    "Tuna on rice cakes",
+    "Rice cakes (sweet chilli or salt & vinegar)",
+    "Boiled eggs (pre-prepped)",
+    "Banana",
+    "Apple",
+    "Kiwi + blueberries",
+    "Strawberries"
+  ]
+}

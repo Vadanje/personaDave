@@ -131,6 +131,13 @@ button:disabled{background:#555;color:#999}
       <div class="check-row"><input type="checkbox" id="protein-hit"><label for="protein-hit">Hit 130g+ protein</label></div>
     </div>
 
+    <div class="section"><h2>Meals</h2>
+      <div class="field"><label>Breakfast</label><select id="meal-breakfast"><option value="">Select...</option></select></div>
+      <div class="field"><label>Lunch</label><select id="meal-lunch"><option value="">Select...</option></select></div>
+      <div class="field"><label>Dinner</label><select id="meal-dinner"><option value="">Select...</option></select></div>
+      <div class="field"><label>Snack</label><select id="meal-snack"><option value="">Select...</option></select></div>
+    </div>
+
     <div class="field" style="margin-top:16px"><label>Notes</label><textarea id="notes" placeholder="Anything notable..."></textarea></div>
     <button onclick="submitCheckin()">Submit Check-in</button>
   </div>
@@ -172,6 +179,19 @@ button:disabled{background:#555;color:#999}
   <div class="protocol-section"><h3>🍗 Nutrition</h3><ul>
     <li>4 eggs every morning (non-negotiable)</li><li>Rice/potato + protein for lunch and dinner</li>
     <li>Target: 2200-2400 cal, 130-150g protein</li><li>No fasting</li><li>3L+ water daily (lemon/lime)</li></ul></div>
+
+  <div class="protocol-section"><h3>🍳 Recipes</h3><ul>
+    <li><strong>Beef Rice Bowl:</strong> 200g beef mince, paprika, soy sauce. Fry 8min. Serve over 150g rice + rocket.</li>
+    <li><strong>Lemon Chicken + Potato:</strong> 2 chicken thighs, lemon juice, oregano, salt. Oven 200°C 30min with diced potato.</li>
+    <li><strong>Turkey Mince Stir-Fry:</strong> 200g turkey mince, peppers, ginger, soy sauce. Serve over rice. 5min cook.</li>
+    <li><strong>Tuna Rice Cakes:</strong> Tin of tuna + mayo + black pepper on 4 rice cakes. Zero-cook gaming snack.</li>
+    <li><strong>Steak + Egg Plate:</strong> Pan-sear steak 3min/side. Fry 2 eggs in the fat. Side of rice or potato wedges.</li>
+    <li><strong>Slow-Cook Beef Shin:</strong> 1kg beef shin, tinned tomatoes, paprika, stock cube. Low 6-8hrs. Makes 4+ meals over rice.</li>
+    <li><strong>Egg Fried Rice:</strong> Cold leftover rice, 3 eggs scrambled in, soy sauce, frozen peas. 5min one-pan.</li>
+    <li><strong>Salmon + Rice:</strong> Salmon fillet, lemon, dill, salt. Oven 180°C 15min. Serve with rice.</li>
+  </ul>
+  <p style="font-size:.75rem;color:#888;margin-top:8px">All recipes: no dairy, no onion, no garlic, no spice, low oxalate.</p>
+  </div>
   <div class="protocol-section"><h3>🏋️ Training (3x/week)</h3><ul>
     <li><strong>Day 1:</strong> Push + Arms (incline press, dips, pushdowns, extensions, curls, hammers)</li>
     <li><strong>Day 2:</strong> Pull + Arms (pulldowns, rows, barbell curls, spider curls, pushdowns)</li>
@@ -285,6 +305,7 @@ async function submitCheckin() {
     ate_consistently:document.getElementById('ate').checked,
     wind_down_cutoff:document.getElementById('wind-down').checked,
     protein_hit:document.getElementById('protein-hit').checked,
+    meals:{breakfast:document.getElementById('meal-breakfast').value||null,lunch:document.getElementById('meal-lunch').value||null,dinner:document.getElementById('meal-dinner').value||null,snack:document.getElementById('meal-snack').value||null},
     arm_measurement:document.getElementById('arm-measure').value||null,
     notes:document.getElementById('notes').value||null
   };
@@ -531,6 +552,25 @@ function toggleFullForm() {
 }
 
 renderQuickCard();
+
+// Load meals database
+let mealsDB = {};
+async function loadMeals() {
+  try {
+    const resp = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/meals.json`,{headers:{'Authorization':`token ${CONFIG.token}`}});
+    if(!resp.ok)return;
+    const file = await resp.json();
+    mealsDB = JSON.parse(decodeURIComponent(escape(atob(file.content))));
+    ['breakfast','lunch','dinner','snack'].forEach(slot => {
+      const sel = document.getElementById('meal-'+slot);
+      if(!sel || !mealsDB[slot]) return;
+      mealsDB[slot].forEach(m => { const o=document.createElement('option');o.value=m;o.textContent=m;sel.appendChild(o); });
+      const other=document.createElement('option');other.value='other';other.textContent='Other';sel.appendChild(other);
+    });
+  } catch(e) { console.error(e); }
+}
+loadMeals();
+
 loadHistory();
 
 // GitHub helper

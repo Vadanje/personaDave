@@ -25,8 +25,10 @@
 - Avoids spicy food
 - Doesn't tolerate processed foods well
 - Doesn't eat during gaming sessions
+- History of kidney stones (calcium oxalate) — LIMIT HIGH-OXALATE FOODS (spinach, sweet potato, nuts, dark chocolate, beetroot)
 - Typical foods: eggs, rice, potato, steak, chicken, turkey mince, beef mince, tinned tuna/salmon, fruits (kiwi, blueberries, strawberries, banana, apple), rice cakes, SuperValu protein meals
 - Drinks lemon/lime water (protective for kidney stones)
+- Dislikes: sardines, mackerel
 
 ## Constraints
 - Gym closes 9:30pm
