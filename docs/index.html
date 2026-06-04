@@ -9,7 +9,9 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, system-ui, sans-serif; background: #1a1a2e; color: #eee; padding: 16px; max-width: 480px; margin: 0 auto; }
-h1 { font-size: 1.4rem; margin-bottom: 16px; color: #00d4aa; }
+h1 { font-size: 1.4rem; margin-bottom: 4px; color: #00d4aa; }
+.streak { font-size: 0.85rem; color: #aaa; margin-bottom: 16px; }
+.streak span { color: #00d4aa; font-weight: bold; }
 .field { margin-bottom: 14px; }
 label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 4px; }
 input[type="number"], input[type="time"], input[type="text"], textarea {
@@ -23,6 +25,10 @@ textarea { height: 60px; resize: vertical; }
 .slider-row { padding: 8px 0; }
 .slider-row input[type="range"] { width: 100%; accent-color: #00d4aa; }
 .slider-val { text-align: center; font-size: 1.2rem; color: #00d4aa; font-weight: bold; }
+.sleep-calc { text-align: center; font-size: 1.1rem; font-weight: bold; margin-top: 6px; padding: 6px; border-radius: 6px; }
+.sleep-good { color: #00d4aa; background: #0a3d2a; }
+.sleep-ok { color: #f0c040; background: #3d3a0a; }
+.sleep-bad { color: #ff6b6b; background: #3d0a0a; }
 button { width: 100%; padding: 14px; border: none; border-radius: 8px; background: #00d4aa; color: #1a1a2e; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 16px; }
 button:disabled { background: #555; color: #999; }
 .status { text-align: center; margin-top: 12px; padding: 10px; border-radius: 8px; }
@@ -30,10 +36,20 @@ button:disabled { background: #555; color: #999; }
 .err { background: #3d0a0a; color: #ff6b6b; }
 .section { margin-top: 20px; padding-top: 12px; border-top: 1px solid #333; }
 .section h2 { font-size: 1rem; color: #00d4aa; margin-bottom: 10px; }
+.history { margin-top: 24px; padding-top: 16px; border-top: 2px solid #333; }
+.history h2 { font-size: 1rem; color: #00d4aa; margin-bottom: 12px; }
+.history-day { background: #16213e; border-radius: 8px; padding: 10px; margin-bottom: 8px; font-size: 0.8rem; }
+.history-day .date { color: #00d4aa; font-weight: bold; margin-bottom: 4px; }
+.history-day .details { color: #aaa; line-height: 1.4; }
+.weekly-summary { background: #0f2a1f; border: 1px solid #00d4aa33; border-radius: 8px; padding: 12px; margin-top: 16px; }
+.weekly-summary h3 { color: #00d4aa; font-size: 0.9rem; margin-bottom: 8px; }
+.weekly-summary .stat { display: flex; justify-content: space-between; font-size: 0.85rem; padding: 3px 0; }
+.weekly-summary .stat-val { color: #00d4aa; font-weight: bold; }
 </style>
 </head>
 <body>
 <h1>Daily Check-in</h1>
+<div class="streak" id="streak-display"></div>
 
 <div class="field">
   <label>Date</label>
@@ -48,24 +64,23 @@ button:disabled { background: #555; color: #999; }
 <div class="section"><h2>Sleep</h2>
   <div class="field">
     <label>Bed time</label>
-    <input type="time" id="bed">
+    <input type="time" id="bed" onchange="calcSleep()">
   </div>
   <div class="field">
     <label>Wake time</label>
-    <input type="time" id="wake">
+    <input type="time" id="wake" onchange="calcSleep()">
   </div>
+  <div class="sleep-calc" id="sleep-duration"></div>
 </div>
 
 <div class="section"><h2>Ratings</h2>
   <div class="slider-row">
-    <label>Energy</label>
-    <input type="range" id="energy" min="1" max="10" value="5" oninput="document.getElementById('energy-val').textContent=this.value">
-    <div class="slider-val" id="energy-val">5</div>
+    <label>Energy <span id="energy-val"></span></label>
+    <input type="range" id="energy" min="1" max="10" value="0" oninput="document.getElementById('energy-val').textContent='('+this.value+'/10)'">
   </div>
   <div class="slider-row">
-    <label>Arm Recovery</label>
-    <input type="range" id="recovery" min="1" max="10" value="5" oninput="document.getElementById('recovery-val').textContent=this.value">
-    <div class="slider-val" id="recovery-val">5</div>
+    <label>Arm Recovery <span id="recovery-val"></span></label>
+    <input type="range" id="recovery" min="1" max="10" value="0" oninput="document.getElementById('recovery-val').textContent='('+this.value+'/10)'">
   </div>
 </div>
 
@@ -81,8 +96,8 @@ button:disabled { background: #555; color: #999; }
 
 <div class="section"><h2>Training</h2>
   <div class="field">
-    <label>Session (e.g. "Day A - Push + Arms")</label>
-    <input type="text" id="session" placeholder="Day A / rest / etc">
+    <label>Session</label>
+    <input type="text" id="session" placeholder="Day 1 Push / Day 2 Pull / Day 3 Arms+Shoulders">
   </div>
 </div>
 
@@ -93,6 +108,8 @@ button:disabled { background: #555; color: #999; }
 
 <button id="submit" onclick="submitCheckin()">Submit Check-in</button>
 <div id="status"></div>
+
+<div class="history" id="history"></div>
 
 <script>
 const today = new Date().toISOString().split('T')[0];
@@ -108,6 +125,23 @@ const CONFIG = {
 if (!CONFIG.token) {
   const t = prompt('Enter your GitHub token (one-time setup):');
   if (t) { localStorage.setItem('gh_token', t); CONFIG.token = t; }
+}
+
+function calcSleep() {
+  const bed = document.getElementById('bed').value;
+  const wake = document.getElementById('wake').value;
+  const el = document.getElementById('sleep-duration');
+  if (!bed || !wake) { el.textContent = ''; return; }
+  let [bh, bm] = bed.split(':').map(Number);
+  let [wh, wm] = wake.split(':').map(Number);
+  let mins = (wh * 60 + wm) - (bh * 60 + bm);
+  if (mins <= 0) mins += 1440;
+  const hrs = Math.floor(mins / 60);
+  const rm = mins % 60;
+  el.textContent = `${hrs}h ${rm}m sleep`;
+  if (mins >= 420) { el.className = 'sleep-calc sleep-good'; }
+  else if (mins >= 360) { el.className = 'sleep-calc sleep-ok'; }
+  else { el.className = 'sleep-calc sleep-bad'; }
 }
 
 function getFormData() {
@@ -140,7 +174,6 @@ async function submitCheckin() {
   const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
 
   try {
-    // Check if file exists
     let sha = null;
     const getResp = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${filename}`, {
       headers: { 'Authorization': `token ${CONFIG.token}` }
@@ -162,6 +195,7 @@ async function submitCheckin() {
     if (resp.ok) {
       status.className = 'status ok';
       status.textContent = '✓ Saved!';
+      loadHistory();
     } else {
       const err = await resp.json();
       throw new Error(err.message);
@@ -174,6 +208,69 @@ async function submitCheckin() {
   btn.disabled = false;
   btn.textContent = 'Submit Check-in';
 }
+
+async function loadHistory() {
+  try {
+    const resp = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.path}`, {
+      headers: { 'Authorization': `token ${CONFIG.token}` }
+    });
+    if (!resp.ok) return;
+    const files = await resp.json();
+    const jsonFiles = files.filter(f => f.name.endsWith('.json')).sort((a, b) => b.name.localeCompare(a.name)).slice(0, 7);
+
+    let streak = 0;
+    let entries = [];
+    let trainedCount = 0;
+    let totalAdherence = 0;
+    let checkinCount = 0;
+
+    for (const file of jsonFiles) {
+      const r = await fetch(file.download_url);
+      const data = await r.json();
+      entries.push(data);
+      checkinCount++;
+      if (data.trained) trainedCount++;
+      const checks = [data.supps, data.caffeine_cutoff, data.skincare_am, data.skincare_pm, data.ate_consistently, data.wind_down_cutoff];
+      totalAdherence += checks.filter(Boolean).length / checks.length;
+    }
+
+    // Calculate streak
+    const sorted = entries.sort((a, b) => b.date.localeCompare(a.date));
+    for (const entry of sorted) {
+      const d = new Date(entry.date);
+      const expected = new Date(today);
+      expected.setDate(expected.getDate() - streak);
+      if (d.toISOString().split('T')[0] === expected.toISOString().split('T')[0]) { streak++; } else { break; }
+    }
+
+    document.getElementById('streak-display').innerHTML = `🔥 <span>${streak} day${streak !== 1 ? 's' : ''}</span> streak | ${checkinCount} total check-ins`;
+
+    // Render history
+    let html = '<h2>Recent</h2>';
+    const recent = entries.sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
+    for (const d of recent) {
+      const checks = [d.supps, d.caffeine_cutoff, d.skincare_am, d.skincare_pm, d.ate_consistently, d.wind_down_cutoff];
+      const pct = Math.round(checks.filter(Boolean).length / checks.length * 100);
+      html += `<div class="history-day"><div class="date">${d.date} ${d.trained ? '🏋️' : ''}</div><div class="details">`;
+      if (d.weight) html += `${d.weight}kg · `;
+      html += `Energy ${d.energy}/10 · Recovery ${d.arm_recovery}/10 · ${pct}% adherence`;
+      if (d.session) html += ` · ${d.session}`;
+      html += '</div></div>';
+    }
+
+    if (checkinCount >= 3) {
+      const avgAdherence = Math.round(totalAdherence / checkinCount * 100);
+      html += `<div class="weekly-summary"><h3>Week Summary</h3>`;
+      html += `<div class="stat"><span>Sessions trained</span><span class="stat-val">${trainedCount}/${checkinCount}</span></div>`;
+      html += `<div class="stat"><span>Avg adherence</span><span class="stat-val">${avgAdherence}%</span></div>`;
+      html += `</div>`;
+    }
+
+    document.getElementById('history').innerHTML = html;
+  } catch (e) { console.error(e); }
+}
+
+loadHistory();
 </script>
 </body>
 </html>
