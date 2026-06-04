@@ -7,110 +7,90 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, system-ui, sans-serif; background: #1a1a2e; color: #eee; padding: 16px; max-width: 480px; margin: 0 auto; }
-h1 { font-size: 1.4rem; margin-bottom: 4px; color: #00d4aa; }
-.meta { font-size: 0.85rem; color: #aaa; margin-bottom: 12px; }
-.meta span { color: #00d4aa; font-weight: bold; }
-.countdown { background: linear-gradient(135deg, #0f2a1f, #1a1a2e); border: 1px solid #00d4aa44; border-radius: 10px; padding: 14px; text-align: center; margin-bottom: 16px; }
-.countdown .days { font-size: 2.2rem; font-weight: bold; color: #00d4aa; }
-.countdown .label { font-size: 0.8rem; color: #aaa; }
-.tabs { display: flex; gap: 4px; margin-bottom: 16px; }
-.tab { flex: 1; padding: 10px 0; text-align: center; border-radius: 8px; font-size: 0.85rem; font-weight: bold; cursor: pointer; background: #16213e; color: #888; border: 1px solid #333; }
-.tab.active { background: #00d4aa22; color: #00d4aa; border-color: #00d4aa; }
-.page { display: none; }
-.page.active { display: block; }
-.field { margin-bottom: 14px; }
-label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 4px; }
-input[type="number"], input[type="time"], input[type="text"], textarea, select {
-  width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #333;
-  background: #16213e; color: #eee; font-size: 1rem;
-}
-textarea { height: 60px; resize: vertical; }
-.check-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #222; }
-.check-row input[type="checkbox"] { width: 22px; height: 22px; accent-color: #00d4aa; }
-.check-row label { margin: 0; color: #eee; font-size: 0.95rem; }
-.slider-row { padding: 8px 0; }
-.slider-row input[type="range"] { width: 100%; accent-color: #00d4aa; }
-.sleep-calc { text-align: center; font-size: 1.1rem; font-weight: bold; margin-top: 6px; padding: 6px; border-radius: 6px; }
-.sleep-good { color: #00d4aa; background: #0a3d2a; }
-.sleep-ok { color: #f0c040; background: #3d3a0a; }
-.sleep-bad { color: #ff6b6b; background: #3d0a0a; }
-button { width: 100%; padding: 14px; border: none; border-radius: 8px; background: #00d4aa; color: #1a1a2e; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin-top: 12px; }
-button:disabled { background: #555; color: #999; }
-.btn-secondary { background: #16213e; color: #00d4aa; border: 1px solid #00d4aa; margin-top: 8px; }
-.status { text-align: center; margin-top: 12px; padding: 10px; border-radius: 8px; }
-.ok { background: #0a3d2a; color: #00d4aa; }
-.err { background: #3d0a0a; color: #ff6b6b; }
-.section { margin-top: 20px; padding-top: 12px; border-top: 1px solid #333; }
-.section h2 { font-size: 1rem; color: #00d4aa; margin-bottom: 10px; }
-.history-day { background: #16213e; border-radius: 8px; padding: 10px; margin-bottom: 8px; font-size: 0.8rem; }
-.history-day .date { color: #00d4aa; font-weight: bold; margin-bottom: 4px; }
-.history-day .details { color: #aaa; line-height: 1.4; }
-.weekly-summary { background: #0f2a1f; border: 1px solid #00d4aa33; border-radius: 8px; padding: 12px; margin-top: 16px; }
-.weekly-summary h3 { color: #00d4aa; font-size: 0.9rem; margin-bottom: 8px; }
-.weekly-summary .stat { display: flex; justify-content: space-between; font-size: 0.85rem; padding: 3px 0; }
-.weekly-summary .stat-val { color: #00d4aa; font-weight: bold; }
-.exercise-entry { background: #16213e; border-radius: 8px; padding: 10px; margin-bottom: 8px; }
-.exercise-entry input { margin-bottom: 6px; }
-.set-row { display: flex; gap: 8px; margin-bottom: 4px; }
-.set-row input { width: 50%; padding: 8px; font-size: 0.9rem; }
-.remove-btn { background: none; border: none; color: #ff6b6b; font-size: 1.2rem; cursor: pointer; padding: 4px 8px; margin: 0; width: auto; }
-.protocol-section { background: #16213e; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
-.protocol-section h3 { color: #00d4aa; font-size: 0.9rem; margin-bottom: 8px; }
-.protocol-section p, .protocol-section li { font-size: 0.85rem; color: #ccc; line-height: 1.5; }
-.protocol-section ul { padding-left: 16px; }
-.photo-prompt { background: #2a1a0f; border: 1px solid #f0c04044; border-radius: 8px; padding: 12px; margin-bottom: 12px; text-align: center; }
-.photo-prompt .icon { font-size: 2rem; }
-.photo-prompt p { font-size: 0.85rem; color: #f0c040; margin-top: 6px; }
-.review-box { background: #16213e; border-radius: 8px; padding: 12px; font-size: 0.8rem; color: #ccc; white-space: pre-wrap; line-height: 1.5; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,system-ui,sans-serif;background:#1a1a2e;color:#eee;padding:16px;max-width:480px;margin:0 auto}
+h1{font-size:1.4rem;margin-bottom:4px;color:#00d4aa}
+.meta{font-size:.85rem;color:#aaa;margin-bottom:12px}.meta span{color:#00d4aa;font-weight:bold}
+.countdown{background:linear-gradient(135deg,#0f2a1f,#1a1a2e);border:1px solid #00d4aa44;border-radius:10px;padding:14px;text-align:center;margin-bottom:16px}
+.countdown .days{font-size:2.2rem;font-weight:bold;color:#00d4aa}.countdown .label{font-size:.8rem;color:#aaa}
+.guidance{background:#16213e;border-left:3px solid #00d4aa;border-radius:0 8px 8px 0;padding:12px;margin-bottom:16px;font-size:.85rem;line-height:1.4}
+.guidance.warn{border-color:#f0c040}.guidance.alert{border-color:#ff6b6b}
+.tabs{display:flex;gap:4px;margin-bottom:16px}
+.tab{flex:1;padding:10px 0;text-align:center;border-radius:8px;font-size:.8rem;font-weight:bold;cursor:pointer;background:#16213e;color:#888;border:1px solid #333}
+.tab.active{background:#00d4aa22;color:#00d4aa;border-color:#00d4aa}
+.page{display:none}.page.active{display:block}
+.field{margin-bottom:14px}
+label{display:block;font-size:.85rem;color:#aaa;margin-bottom:4px}
+input[type="number"],input[type="time"],input[type="text"],textarea,select{width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#16213e;color:#eee;font-size:1rem}
+textarea{height:60px;resize:vertical}
+.check-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #222}
+.check-row input[type="checkbox"]{width:22px;height:22px;accent-color:#00d4aa}
+.check-row label{margin:0;color:#eee;font-size:.95rem}
+.slider-row{padding:8px 0}.slider-row input[type="range"]{width:100%;accent-color:#00d4aa}
+.sleep-calc{text-align:center;font-size:1.1rem;font-weight:bold;margin-top:6px;padding:6px;border-radius:6px}
+.sleep-good{color:#00d4aa;background:#0a3d2a}.sleep-ok{color:#f0c040;background:#3d3a0a}.sleep-bad{color:#ff6b6b;background:#3d0a0a}
+button{width:100%;padding:14px;border:none;border-radius:8px;background:#00d4aa;color:#1a1a2e;font-size:1.1rem;font-weight:bold;cursor:pointer;margin-top:12px}
+button:disabled{background:#555;color:#999}
+.btn-secondary{background:#16213e;color:#00d4aa;border:1px solid #00d4aa;margin-top:8px}
+.btn-sm{padding:8px;font-size:.8rem}
+.status{text-align:center;margin-top:12px;padding:10px;border-radius:8px}
+.ok{background:#0a3d2a;color:#00d4aa}.err{background:#3d0a0a;color:#ff6b6b}
+.section{margin-top:20px;padding-top:12px;border-top:1px solid #333}.section h2{font-size:1rem;color:#00d4aa;margin-bottom:10px}
+.history-day{background:#16213e;border-radius:8px;padding:10px;margin-bottom:8px;font-size:.8rem}
+.history-day .date{color:#00d4aa;font-weight:bold;margin-bottom:4px}.history-day .details{color:#aaa;line-height:1.4}
+.weekly-summary{background:#0f2a1f;border:1px solid #00d4aa33;border-radius:8px;padding:12px;margin-top:16px}
+.weekly-summary h3{color:#00d4aa;font-size:.9rem;margin-bottom:8px}
+.weekly-summary .stat{display:flex;justify-content:space-between;font-size:.85rem;padding:3px 0}.weekly-summary .stat-val{color:#00d4aa;font-weight:bold}
+.exercise-entry{background:#16213e;border-radius:8px;padding:10px;margin-bottom:8px}
+.set-row{display:flex;gap:8px;margin-bottom:4px}.set-row input{width:40%;padding:8px;font-size:.9rem}.set-row .set-num{color:#00d4aa;font-size:.8rem;width:20%;display:flex;align-items:center}
+.prev-data{font-size:.75rem;color:#f0c040;margin-top:2px;font-style:italic}
+.remove-btn{background:none;border:none;color:#ff6b6b;font-size:1.2rem;cursor:pointer;padding:4px 8px;margin:0;width:auto}
+.protocol-section{background:#16213e;border-radius:8px;padding:12px;margin-bottom:12px}
+.protocol-section h3{color:#00d4aa;font-size:.9rem;margin-bottom:8px}
+.protocol-section li{font-size:.85rem;color:#ccc;line-height:1.6}
+.protocol-section ul{padding-left:16px}
+.photo-prompt{background:#2a1a0f;border:1px solid #f0c04044;border-radius:8px;padding:12px;margin-bottom:12px;text-align:center}
+.photo-prompt .icon{font-size:2rem}.photo-prompt p{font-size:.85rem;color:#f0c040;margin-top:6px}
+.review-box{background:#16213e;border-radius:8px;padding:12px;font-size:.8rem;color:#ccc;white-space:pre-wrap;line-height:1.5}
+.sparkline{display:flex;align-items:flex-end;gap:3px;height:50px;margin:12px 0;padding:8px;background:#16213e;border-radius:8px}
+.sparkline .bar{background:#00d4aa;border-radius:2px 2px 0 0;min-width:12px;flex:1;position:relative}
+.sparkline .bar-label{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:.6rem;color:#aaa}
+.measure-field{background:#0f2a1f;border:1px solid #00d4aa33;border-radius:8px;padding:12px;margin-bottom:14px}
+.measure-field label{color:#00d4aa}
 </style>
 </head>
 <body>
-
 <h1>Coach Dave</h1>
 <div class="meta" id="meta-display"></div>
-
-<div class="countdown">
-  <div class="days" id="countdown-days"></div>
-  <div class="label">days until June 26</div>
-</div>
+<div class="countdown"><div class="days" id="countdown-days"></div><div class="label">days until June 26</div></div>
+<div id="guidance"></div>
 
 <div class="tabs">
   <div class="tab active" onclick="switchTab('checkin')">Check-in</div>
-  <div class="tab" onclick="switchTab('training')">Training</div>
+  <div class="tab" onclick="switchTab('training')">Train</div>
   <div class="tab" onclick="switchTab('protocol')">Protocol</div>
   <div class="tab" onclick="switchTab('review')">Review</div>
 </div>
 
-<!-- CHECK-IN PAGE -->
+<!-- CHECK-IN -->
 <div class="page active" id="page-checkin">
-  <div class="field">
-    <label>Weight (kg)</label>
-    <input type="number" id="weight" step="0.1" placeholder="62.8">
+  <div class="field"><label>Weight (kg)</label><input type="number" id="weight" step="0.1" placeholder="62.8"></div>
+  <div id="weight-graph"></div>
+
+  <div class="measure-field" id="measure-section" style="display:none">
+    <label>💪 Weekly Arm Measurement (cm, flexed)</label>
+    <input type="number" id="arm-measure" step="0.1" placeholder="e.g. 33.5" style="margin-top:6px">
   </div>
 
   <div class="section"><h2>Sleep</h2>
-    <div class="field">
-      <label>Bed time</label>
-      <input type="time" id="bed" onchange="calcSleep()">
-    </div>
-    <div class="field">
-      <label>Wake time</label>
-      <input type="time" id="wake" onchange="calcSleep()">
-    </div>
+    <div class="field"><label>Bed time</label><input type="time" id="bed" onchange="calcSleep()"></div>
+    <div class="field"><label>Wake time</label><input type="time" id="wake" onchange="calcSleep()"></div>
     <div class="sleep-calc" id="sleep-duration"></div>
   </div>
 
   <div class="section"><h2>Ratings</h2>
-    <div class="slider-row">
-      <label>Energy <span id="energy-val"></span></label>
-      <input type="range" id="energy" min="1" max="10" value="0" oninput="document.getElementById('energy-val').textContent='('+this.value+'/10)'">
-    </div>
-    <div class="slider-row">
-      <label>Arm Recovery <span id="recovery-val"></span></label>
-      <input type="range" id="recovery" min="1" max="10" value="0" oninput="document.getElementById('recovery-val').textContent='('+this.value+'/10)'">
-    </div>
+    <div class="slider-row"><label>Energy <span id="energy-val"></span></label><input type="range" id="energy" min="1" max="10" value="0" oninput="document.getElementById('energy-val').textContent='('+this.value+'/10)'"></div>
+    <div class="slider-row"><label>Arm Recovery <span id="recovery-val"></span></label><input type="range" id="recovery" min="1" max="10" value="0" oninput="document.getElementById('recovery-val').textContent='('+this.value+'/10)'"></div>
   </div>
 
   <div class="section"><h2>Adherence</h2>
@@ -121,24 +101,19 @@ button:disabled { background: #555; color: #999; }
     <div class="check-row"><input type="checkbox" id="skincare-pm"><label for="skincare-pm">PM skincare done</label></div>
     <div class="check-row"><input type="checkbox" id="ate"><label for="ate">Ate consistently (no fasting)</label></div>
     <div class="check-row"><input type="checkbox" id="wind-down"><label for="wind-down">Evening wind-down cutoff</label></div>
+    <div class="check-row"><input type="checkbox" id="protein-hit"><label for="protein-hit">Hit 130g+ protein</label></div>
   </div>
 
-  <div class="field" style="margin-top:16px">
-    <label>Notes</label>
-    <textarea id="notes" placeholder="Anything notable..."></textarea>
-  </div>
-
+  <div class="field" style="margin-top:16px"><label>Notes</label><textarea id="notes" placeholder="Anything notable..."></textarea></div>
   <button onclick="submitCheckin()">Submit Check-in</button>
   <div id="checkin-status"></div>
-
   <div class="section" id="history"></div>
 </div>
 
-<!-- TRAINING LOG PAGE -->
+<!-- TRAINING -->
 <div class="page" id="page-training">
-  <div class="field">
-    <label>Session Type</label>
-    <select id="train-session">
+  <div class="field"><label>Session Type</label>
+    <select id="train-session" onchange="prefillSession()">
       <option value="">Select...</option>
       <option value="Day 1: Push + Arms">Day 1: Push + Arms</option>
       <option value="Day 2: Pull + Arms">Day 2: Pull + Arms</option>
@@ -146,74 +121,38 @@ button:disabled { background: #555; color: #999; }
       <option value="Bonus: Arms">Bonus: Arms</option>
     </select>
   </div>
-
+  <div id="prev-session-note"></div>
   <div id="exercises"></div>
   <button class="btn-secondary" onclick="addExercise()">+ Add Exercise</button>
   <button onclick="submitTraining()">Save Training Log</button>
   <div id="training-status"></div>
-
   <div class="section" id="training-history"><h2>Recent Sessions</h2></div>
 </div>
 
-<!-- PROTOCOL PAGE -->
+<!-- PROTOCOL -->
 <div class="page" id="page-protocol">
   <div id="photo-prompt"></div>
-
-  <div class="protocol-section">
-    <h3>☀️ Morning</h3>
-    <ul>
-      <li>Creatine 5g with breakfast</li>
-      <li>Vitamin D3 4000 IU</li>
-      <li>Vitamin K2 75mcg</li>
-      <li>Skincare: Cleanser → Vit C → Niacinamide → Under-eye → Moisturiser → SPF</li>
-    </ul>
-  </div>
-
-  <div class="protocol-section">
-    <h3>🏋️ Pre-Workout</h3>
-    <ul>
-      <li>Pre-workout (citrulline 4g, beta-alanine 3.2g, caffeine 200mg)</li>
-      <li>L-theanine 200mg</li>
-      <li>Tadalafil 5mg (daily, any time)</li>
-    </ul>
-  </div>
-
-  <div class="protocol-section">
-    <h3>🌙 Evening</h3>
-    <ul>
-      <li>Magnesium bisglycinate 2 tablets (200mg elemental)</li>
-      <li>Omega-3 (2 tablets)</li>
-      <li>Finasteride 5mg</li>
-      <li>Caffeine cutoff by 4-5pm</li>
-      <li>Skincare: Cleanser → Niacinamide → Under-eye → Retinal → Moisturiser</li>
-    </ul>
-  </div>
-
-  <div class="protocol-section">
-    <h3>🍗 Nutrition</h3>
-    <ul>
-      <li>4 eggs every morning (non-negotiable)</li>
-      <li>Rice/potato + protein for lunch and dinner</li>
-      <li>Target: 2200-2400 cal, 130-150g protein</li>
-      <li>No fasting - eat consistently</li>
-      <li>3L+ water daily (lemon/lime water for kidney stones)</li>
-    </ul>
-  </div>
-
-  <div class="protocol-section">
-    <h3>🏋️ Training Split (3x/week)</h3>
-    <ul>
-      <li><strong>Day 1:</strong> Push + Arms (incline press, dips, pushdowns, extensions, curls, hammers)</li>
-      <li><strong>Day 2:</strong> Pull + Arms (pulldowns, rows, barbell curls, spider curls, pushdowns)</li>
-      <li><strong>Day 3:</strong> Arms + Shoulders (shoulder press, laterals, EZ curls, concentration, skulls, kickbacks)</li>
-    </ul>
-  </div>
+  <div class="protocol-section"><h3>☀️ Morning</h3><ul>
+    <li>Creatine 5g with breakfast</li><li>Vitamin D3 4000 IU</li><li>Vitamin K2 75mcg</li>
+    <li>Skincare: Cleanser → Vit C → Niacinamide → Under-eye → Moisturiser → SPF</li></ul></div>
+  <div class="protocol-section"><h3>🏋️ Pre-Workout</h3><ul>
+    <li>Pre-workout (citrulline 4g, beta-alanine 3.2g, caffeine 200mg)</li><li>L-theanine 200mg</li><li>Tadalafil 5mg (daily, any time)</li></ul></div>
+  <div class="protocol-section"><h3>🌙 Evening</h3><ul>
+    <li>Magnesium bisglycinate 2 tablets (200mg elemental)</li><li>Omega-3 (2 tablets)</li><li>Finasteride 5mg</li>
+    <li>Caffeine cutoff by 4-5pm</li><li>Skincare: Cleanser → Niacinamide → Under-eye → Retinal → Moisturiser</li></ul></div>
+  <div class="protocol-section"><h3>🍗 Nutrition</h3><ul>
+    <li>4 eggs every morning (non-negotiable)</li><li>Rice/potato + protein for lunch and dinner</li>
+    <li>Target: 2200-2400 cal, 130-150g protein</li><li>No fasting</li><li>3L+ water daily (lemon/lime)</li></ul></div>
+  <div class="protocol-section"><h3>🏋️ Training (3x/week)</h3><ul>
+    <li><strong>Day 1:</strong> Push + Arms (incline press, dips, pushdowns, extensions, curls, hammers)</li>
+    <li><strong>Day 2:</strong> Pull + Arms (pulldowns, rows, barbell curls, spider curls, pushdowns)</li>
+    <li><strong>Day 3:</strong> Arms + Shoulders (shoulder press, laterals, EZ curls, concentration, skulls, kickbacks)</li></ul></div>
 </div>
 
-<!-- REVIEW PAGE -->
+<!-- REVIEW -->
 <div class="page" id="page-review">
-  <h2 style="color:#00d4aa;margin-bottom:12px;">Weekly Review</h2>
-  <p style="font-size:0.85rem;color:#aaa;margin-bottom:12px;">Auto-generated summary from your check-ins. Copy and send to Coach Dave.</p>
+  <h2 style="color:#00d4aa;margin-bottom:12px">Weekly Review</h2>
+  <p style="font-size:.85rem;color:#aaa;margin-bottom:12px">Auto-generated summary. Copy and send to Coach Dave.</p>
   <div class="review-box" id="review-content">Loading...</div>
   <button onclick="copyReview()">Copy to Clipboard</button>
   <div id="review-status"></div>
@@ -225,213 +164,262 @@ const targetDate = new Date('2026-06-26');
 const daysLeft = Math.ceil((targetDate - new Date()) / 86400000);
 document.getElementById('countdown-days').textContent = daysLeft;
 
-const CONFIG = {
-  owner: 'Vadanje',
-  repo: 'personaDave',
-  token: localStorage.getItem('gh_token') || '',
-  path: 'checkins/'
-};
+// Show arm measurement on Sundays
+if (new Date().getDay() === 0) document.getElementById('measure-section').style.display = 'block';
 
-if (!CONFIG.token) {
-  const t = prompt('Enter your GitHub token (one-time setup):');
-  if (t) { localStorage.setItem('gh_token', t); CONFIG.token = t; }
-}
+const CONFIG = { owner:'Vadanje', repo:'personaDave', token: localStorage.getItem('gh_token')||'', path:'checkins/' };
+if (!CONFIG.token) { const t = prompt('Enter your GitHub token (one-time setup):'); if(t){localStorage.setItem('gh_token',t);CONFIG.token=t;} }
 
-// Tabs
+let allCheckins = [];
+let allTraining = [];
+
 function switchTab(name) {
-  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', t.textContent.toLowerCase().includes(name.slice(0,4))));
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.getAttribute('onclick').includes(name)));
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + name).classList.add('active');
-  if (name === 'review') generateReview();
-  if (name === 'training') loadTrainingHistory();
+  document.getElementById('page-'+name).classList.add('active');
+  if(name==='review') generateReview();
+  if(name==='training') loadTrainingHistory();
 }
 
-// Sleep calc
 function calcSleep() {
-  const bed = document.getElementById('bed').value;
-  const wake = document.getElementById('wake').value;
-  const el = document.getElementById('sleep-duration');
-  if (!bed || !wake) { el.textContent = ''; return; }
-  let [bh, bm] = bed.split(':').map(Number);
-  let [wh, wm] = wake.split(':').map(Number);
-  let mins = (wh * 60 + wm) - (bh * 60 + bm);
-  if (mins <= 0) mins += 1440;
-  const hrs = Math.floor(mins / 60);
-  const rm = mins % 60;
-  el.textContent = `${hrs}h ${rm}m sleep`;
-  el.className = mins >= 420 ? 'sleep-calc sleep-good' : mins >= 360 ? 'sleep-calc sleep-ok' : 'sleep-calc sleep-bad';
+  const bed=document.getElementById('bed').value, wake=document.getElementById('wake').value;
+  const el=document.getElementById('sleep-duration');
+  if(!bed||!wake){el.textContent='';return;}
+  let[bh,bm]=bed.split(':').map(Number),[wh,wm]=wake.split(':').map(Number);
+  let mins=(wh*60+wm)-(bh*60+bm); if(mins<=0)mins+=1440;
+  const hrs=Math.floor(mins/60),rm=mins%60;
+  el.textContent=`${hrs}h ${rm}m sleep`;
+  el.className=mins>=420?'sleep-calc sleep-good':mins>=360?'sleep-calc sleep-ok':'sleep-calc sleep-bad';
 }
 
-// Photo prompt (Sundays only)
-if (new Date().getDay() === 0) {
-  document.getElementById('photo-prompt').innerHTML = '<div class="photo-prompt"><div class="icon">📸</div><p>Progress photo day! Take front + side in same spot as last week.</p></div>';
+// Guidance engine
+function renderGuidance(entries) {
+  const el = document.getElementById('guidance');
+  const latest = entries[0];
+  if (!latest) { el.innerHTML=''; return; }
+  let msgs = [];
+  
+  // Sleep-based
+  if (latest.sleep && latest.sleep.bed && latest.sleep.wake) {
+    let[bh,bm]=latest.sleep.bed.split(':').map(Number),[wh,wm]=latest.sleep.wake.split(':').map(Number);
+    let mins=(wh*60+wm)-(bh*60+bm);if(mins<=0)mins+=1440;
+    if (mins < 300) msgs.push({type:'alert', text:'⚠️ Critical sleep debt. Skip heavy compounds today - pump work only. Eat extra, hydrate hard, early wind-down tonight.'});
+    else if (mins < 360) msgs.push({type:'warn', text:'💤 Low sleep. Reduce training intensity. Focus on recovery today.'});
+  }
+  
+  // Training frequency
+  const thisWeek = entries.filter(e => { const d=new Date(e.date); const now=new Date(); const diff=(now-d)/86400000; return diff<7; });
+  const trainedThisWeek = thisWeek.filter(e => e.trained).length;
+  if (trainedThisWeek >= 3) msgs.push({type:'good', text:'✓ Weekly training target hit! Bonus session optional.'});
+  else if (thisWeek.length >= 5 && trainedThisWeek === 0) msgs.push({type:'alert', text:'🚨 No training logged this week. Get to the gym today - even 30 minutes counts.'});
+  
+  // Consistency
+  const noFastDays = thisWeek.filter(e => !e.ate_consistently).length;
+  if (noFastDays >= 3) msgs.push({type:'warn', text:'🍗 You\'ve undereaten multiple days this week. Muscle memory needs fuel to work.'});
+
+  // Recovery
+  if (latest.arm_recovery && latest.arm_recovery <= 4) msgs.push({type:'warn', text:'💪 Arms fatigued. Use cables/machines today, skip grip-heavy movements.'});
+
+  if (msgs.length === 0 && trainedThisWeek >= 1) msgs.push({type:'good', text:`✓ On track. ${3-trainedThisWeek} session${3-trainedThisWeek!==1?'s':''} remaining this week. Keep pushing.`});
+  
+  el.innerHTML = msgs.map(m => `<div class="guidance ${m.type==='alert'?'alert':m.type==='warn'?'warn':''}">${m.text}</div>`).join('');
 }
 
-// Check-in submit
+// Weight sparkline
+function renderWeightGraph(entries) {
+  const weights = entries.filter(e=>e.weight).slice(0,14).reverse();
+  if (weights.length < 2) { document.getElementById('weight-graph').innerHTML=''; return; }
+  const vals = weights.map(e=>parseFloat(e.weight));
+  const min = Math.min(...vals)-0.5, max = Math.max(...vals)+0.5, range = max-min||1;
+  let html = '<div class="sparkline">';
+  vals.forEach((v,i) => {
+    const h = Math.max(4, ((v-min)/range)*42);
+    html += `<div class="bar" style="height:${h}px"><span class="bar-label">${i===vals.length-1?v:''}</span></div>`;
+  });
+  html += '</div>';
+  document.getElementById('weight-graph').innerHTML = html;
+}
+
+// Check-in
 async function submitCheckin() {
-  const btn = event.target; btn.disabled = true; btn.textContent = 'Submitting...';
+  const btn=event.target;btn.disabled=true;btn.textContent='Submitting...';
   const data = {
-    date: today,
-    weight: document.getElementById('weight').value || null,
-    sleep: { bed: document.getElementById('bed').value, wake: document.getElementById('wake').value },
-    energy: parseInt(document.getElementById('energy').value),
-    arm_recovery: parseInt(document.getElementById('recovery').value),
-    trained: document.getElementById('trained').checked,
-    supps: document.getElementById('supps').checked,
-    caffeine_cutoff: document.getElementById('caffeine').checked,
-    skincare_am: document.getElementById('skincare-am').checked,
-    skincare_pm: document.getElementById('skincare-pm').checked,
-    ate_consistently: document.getElementById('ate').checked,
-    wind_down_cutoff: document.getElementById('wind-down').checked,
-    notes: document.getElementById('notes').value || null
+    date:today, weight:document.getElementById('weight').value||null,
+    sleep:{bed:document.getElementById('bed').value,wake:document.getElementById('wake').value},
+    energy:parseInt(document.getElementById('energy').value),
+    arm_recovery:parseInt(document.getElementById('recovery').value),
+    trained:document.getElementById('trained').checked,
+    supps:document.getElementById('supps').checked,
+    caffeine_cutoff:document.getElementById('caffeine').checked,
+    skincare_am:document.getElementById('skincare-am').checked,
+    skincare_pm:document.getElementById('skincare-pm').checked,
+    ate_consistently:document.getElementById('ate').checked,
+    wind_down_cutoff:document.getElementById('wind-down').checked,
+    protein_hit:document.getElementById('protein-hit').checked,
+    arm_measurement:document.getElementById('arm-measure').value||null,
+    notes:document.getElementById('notes').value||null
   };
-  const status = document.getElementById('checkin-status');
-  try {
-    await ghPut(`${CONFIG.path}${today}.json`, data, `checkin ${today}`);
-    status.className = 'status ok'; status.textContent = '✓ Saved!';
-    loadHistory();
-  } catch(e) { status.className = 'status err'; status.textContent = 'Error: ' + e.message; }
-  btn.disabled = false; btn.textContent = 'Submit Check-in';
+  const status=document.getElementById('checkin-status');
+  try { await ghPut(`${CONFIG.path}${today}.json`,data,`checkin ${today}`); status.className='status ok';status.textContent='✓ Saved!';loadHistory(); }
+  catch(e){status.className='status err';status.textContent='Error: '+e.message;}
+  btn.disabled=false;btn.textContent='Submit Check-in';
 }
 
-// Training log
+// Training
 let exercises = [];
-function addExercise() {
-  const id = exercises.length;
-  exercises.push({ name: '', sets: [{ weight: '', reps: '' }] });
+function addExercise(name='',sets=[{weight:'',reps:''}]) {
+  exercises.push({name,sets});
   renderExercises();
 }
 function renderExercises() {
-  let html = '';
-  exercises.forEach((ex, i) => {
-    html += `<div class="exercise-entry">
-      <div style="display:flex;gap:8px;align-items:center"><input type="text" placeholder="Exercise name" value="${ex.name}" onchange="exercises[${i}].name=this.value" style="flex:1"><span class="remove-btn" onclick="exercises.splice(${i},1);renderExercises()">✕</span></div>`;
-    ex.sets.forEach((s, j) => {
-      html += `<div class="set-row"><input type="number" placeholder="kg" value="${s.weight}" onchange="exercises[${i}].sets[${j}].weight=this.value"><input type="number" placeholder="reps" value="${s.reps}" onchange="exercises[${i}].sets[${j}].reps=this.value"></div>`;
+  let html='';
+  exercises.forEach((ex,i) => {
+    html+=`<div class="exercise-entry"><div style="display:flex;gap:8px;align-items:center"><input type="text" placeholder="Exercise name" value="${ex.name}" onchange="exercises[${i}].name=this.value" style="flex:1"><span class="remove-btn" onclick="exercises.splice(${i},1);renderExercises()">✕</span></div>`;
+    if(ex.prev) html+=`<div class="prev-data">Last: ${ex.prev}</div>`;
+    ex.sets.forEach((s,j) => {
+      html+=`<div class="set-row"><span class="set-num">Set ${j+1}</span><input type="number" placeholder="kg" value="${s.weight}" onchange="exercises[${i}].sets[${j}].weight=this.value"><input type="number" placeholder="reps" value="${s.reps}" onchange="exercises[${i}].sets[${j}].reps=this.value"></div>`;
     });
-    html += `<button class="btn-secondary" style="padding:8px;font-size:0.8rem" onclick="exercises[${i}].sets.push({weight:'',reps:''});renderExercises()">+ Set</button></div>`;
+    html+=`<button class="btn-secondary btn-sm" onclick="exercises[${i}].sets.push({weight:'',reps:''});renderExercises()">+ Set</button></div>`;
   });
-  document.getElementById('exercises').innerHTML = html;
+  document.getElementById('exercises').innerHTML=html;
+}
+
+async function prefillSession() {
+  const session = document.getElementById('train-session').value;
+  if (!session) return;
+  exercises = [];
+  try {
+    const resp = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/training`,{headers:{'Authorization':`token ${CONFIG.token}`}});
+    if (!resp.ok) { addExercise(); return; }
+    const files = (await resp.json()).filter(f=>f.name.endsWith('.json')).sort((a,b)=>b.name.localeCompare(a.name));
+    for (const f of files) {
+      const r = await fetch(f.download_url); const d = await r.json();
+      if (d.session === session) {
+        document.getElementById('prev-session-note').innerHTML=`<div class="prev-data">📋 Pre-filled from ${d.date}. Beat these numbers!</div>`;
+        d.exercises.forEach(ex => {
+          const prev = ex.sets.map(s=>s.weight+'kg×'+s.reps).join(', ');
+          exercises.push({name:ex.name, sets:ex.sets.map(s=>({weight:s.weight,reps:s.reps})), prev});
+        });
+        renderExercises();
+        return;
+      }
+    }
+  } catch(e) {}
+  addExercise();
 }
 
 async function submitTraining() {
-  const btn = event.target; btn.disabled = true; btn.textContent = 'Saving...';
-  const data = { date: today, session: document.getElementById('train-session').value, exercises };
-  const status = document.getElementById('training-status');
-  try {
-    await ghPut(`training/${today}.json`, data, `training ${today}`);
-    status.className = 'status ok'; status.textContent = '✓ Saved!';
-    loadTrainingHistory();
-  } catch(e) { status.className = 'status err'; status.textContent = 'Error: ' + e.message; }
-  btn.disabled = false; btn.textContent = 'Save Training Log';
+  const btn=event.target;btn.disabled=true;btn.textContent='Saving...';
+  const data={date:today,session:document.getElementById('train-session').value,exercises};
+  const status=document.getElementById('training-status');
+  try{await ghPut(`training/${today}.json`,data,`training ${today}`);status.className='status ok';status.textContent='✓ Saved!';loadTrainingHistory();}
+  catch(e){status.className='status err';status.textContent='Error: '+e.message;}
+  btn.disabled=false;btn.textContent='Save Training Log';
 }
 
 async function loadTrainingHistory() {
   try {
-    const resp = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/training`, { headers: { 'Authorization': `token ${CONFIG.token}` } });
-    if (!resp.ok) return;
-    const files = (await resp.json()).filter(f => f.name.endsWith('.json')).sort((a, b) => b.name.localeCompare(a.name)).slice(0, 5);
-    let html = '<h2>Recent Sessions</h2>';
-    for (const f of files) {
-      const r = await fetch(f.download_url); const d = await r.json();
-      html += `<div class="history-day"><div class="date">${d.date} — ${d.session || 'Session'}</div><div class="details">`;
-      (d.exercises || []).forEach(ex => { html += `${ex.name}: ${ex.sets.map(s => s.weight + 'kg×' + s.reps).join(', ')}<br>`; });
-      html += '</div></div>';
-    }
-    document.getElementById('training-history').innerHTML = html;
-  } catch(e) {}
+    const resp=await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/training`,{headers:{'Authorization':`token ${CONFIG.token}`}});
+    if(!resp.ok)return;
+    const files=(await resp.json()).filter(f=>f.name.endsWith('.json')).sort((a,b)=>b.name.localeCompare(a.name)).slice(0,5);
+    let html='<h2>Recent Sessions</h2>';
+    for(const f of files){const r=await fetch(f.download_url);const d=await r.json();
+      html+=`<div class="history-day"><div class="date">${d.date} — ${d.session||'Session'}</div><div class="details">`;
+      (d.exercises||[]).forEach(ex=>{html+=`${ex.name}: ${ex.sets.map(s=>s.weight+'kg×'+s.reps).join(', ')}<br>`;});
+      html+='</div></div>';}
+    document.getElementById('training-history').innerHTML=html;
+  }catch(e){}
 }
 
-// Weekly review
+// Review
 async function generateReview() {
+  const entries = allCheckins.length ? allCheckins : await fetchCheckins();
+  if(!entries.length){document.getElementById('review-content').textContent='No data yet';return;}
+  const week = entries.slice(0,7);
+  let trainedDays=week.filter(e=>e.trained).length;
+  let avgEnergy=week.length?(week.reduce((s,e)=>s+(e.energy||0),0)/week.length).toFixed(1):'N/A';
+  let avgRecovery=week.length?(week.reduce((s,e)=>s+(e.arm_recovery||0),0)/week.length).toFixed(1):'N/A';
+  let weights=week.filter(e=>e.weight).map(e=>parseFloat(e.weight));
+  let weightTrend=weights.length>=2?`${weights[weights.length-1]}→${weights[0]}kg`:(weights[0]?weights[0]+'kg':'No data');
+  let proteinDays=week.filter(e=>e.protein_hit).length;
+  let armMeasure=entries.find(e=>e.arm_measurement);
+
+  let review=`WEEKLY REVIEW (${week.length} days)\n═══════════════════════════\n`;
+  review+=`Days trained: ${trainedDays}/3 target\nAvg energy: ${avgEnergy}/10\nAvg recovery: ${avgRecovery}/10\nWeight: ${weightTrend}\nProtein target hit: ${proteinDays}/${week.length} days\n`;
+  if(armMeasure)review+=`Arm measurement: ${armMeasure.arm_measurement}cm\n`;
+  review+=`═══════════════════════════\nDAILY BREAKDOWN:\n`;
+  week.forEach(e=>{
+    const checks=[e.supps,e.caffeine_cutoff,e.skincare_am,e.skincare_pm,e.ate_consistently,e.wind_down_cutoff,e.protein_hit];
+    const pct=Math.round(checks.filter(Boolean).length/checks.length*100);
+    review+=`${e.date}: E${e.energy} R${e.arm_recovery} ${e.trained?'🏋️':'  '} ${pct}%${e.notes?' — '+e.notes:''}\n`;
+  });
+  review+=`\nDays until goal: ${daysLeft}`;
+  document.getElementById('review-content').textContent=review;
+}
+
+function copyReview(){navigator.clipboard.writeText(document.getElementById('review-content').textContent);const s=document.getElementById('review-status');s.className='status ok';s.textContent='✓ Copied!';}
+
+// History + data loading
+async function fetchCheckins() {
   try {
-    const resp = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.path}`, { headers: { 'Authorization': `token ${CONFIG.token}` } });
-    if (!resp.ok) return;
-    const files = (await resp.json()).filter(f => f.name.endsWith('.json')).sort((a, b) => b.name.localeCompare(a.name)).slice(0, 7);
-    let entries = [];
-    for (const f of files) { const r = await fetch(f.download_url); entries.push(await r.json()); }
-
-    let trainedDays = entries.filter(e => e.trained).length;
-    let avgEnergy = entries.length ? (entries.reduce((s, e) => s + (e.energy || 0), 0) / entries.length).toFixed(1) : 'N/A';
-    let avgRecovery = entries.length ? (entries.reduce((s, e) => s + (e.arm_recovery || 0), 0) / entries.length).toFixed(1) : 'N/A';
-    let weights = entries.filter(e => e.weight).map(e => parseFloat(e.weight));
-    let weightTrend = weights.length >= 2 ? `${weights[weights.length-1]}→${weights[0]}kg` : 'Not enough data';
-
-    let review = `WEEKLY REVIEW (${entries.length} days logged)\n`;
-    review += `─────────────────────────\n`;
-    review += `Days trained: ${trainedDays}/${entries.length}\n`;
-    review += `Avg energy: ${avgEnergy}/10\n`;
-    review += `Avg arm recovery: ${avgRecovery}/10\n`;
-    review += `Weight: ${weightTrend}\n`;
-    review += `─────────────────────────\n`;
-    entries.forEach(e => {
-      const checks = [e.supps, e.caffeine_cutoff, e.skincare_am, e.skincare_pm, e.ate_consistently, e.wind_down_cutoff];
-      const pct = Math.round(checks.filter(Boolean).length / checks.length * 100);
-      review += `${e.date}: E${e.energy} R${e.arm_recovery} ${e.trained?'🏋️':'  '} ${pct}%${e.notes ? ' — '+e.notes : ''}\n`;
-    });
-
-    document.getElementById('review-content').textContent = review;
-  } catch(e) { document.getElementById('review-content').textContent = 'Error loading data'; }
+    const resp=await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.path}`,{headers:{'Authorization':`token ${CONFIG.token}`}});
+    if(!resp.ok)return[];
+    const files=(await resp.json()).filter(f=>f.name.endsWith('.json')).sort((a,b)=>b.name.localeCompare(a.name)).slice(0,14);
+    let entries=[];
+    for(const f of files){const r=await fetch(f.download_url);entries.push(await r.json());}
+    allCheckins=entries;
+    return entries;
+  }catch(e){return[];}
 }
 
-function copyReview() {
-  navigator.clipboard.writeText(document.getElementById('review-content').textContent);
-  const s = document.getElementById('review-status');
-  s.className = 'status ok'; s.textContent = '✓ Copied!';
+async function loadHistory() {
+  const entries = await fetchCheckins();
+  if(!entries.length)return;
+
+  // Streak
+  let streak=0;
+  for(const entry of entries){
+    const expected=new Date();expected.setDate(expected.getDate()-streak);
+    if(entry.date===expected.toISOString().split('T')[0])streak++;else break;
+  }
+  document.getElementById('meta-display').innerHTML=`🔥 <span>${streak}</span> day streak | ${entries.length} check-ins`;
+
+  // Guidance
+  renderGuidance(entries);
+
+  // Weight graph
+  renderWeightGraph(entries);
+
+  // History list
+  let html='<h2>Recent</h2>';
+  entries.slice(0,3).forEach(d=>{
+    const checks=[d.supps,d.caffeine_cutoff,d.skincare_am,d.skincare_pm,d.ate_consistently,d.wind_down_cutoff];
+    const pct=Math.round(checks.filter(Boolean).length/checks.length*100);
+    html+=`<div class="history-day"><div class="date">${d.date} ${d.trained?'🏋️':''}</div><div class="details">`;
+    if(d.weight)html+=`${d.weight}kg · `;
+    html+=`E${d.energy}/10 · R${d.arm_recovery}/10 · ${pct}%</div></div>`;
+  });
+
+  if(entries.length>=3){
+    const trained=entries.filter(e=>e.trained).length;
+    const avgAdh=Math.round(entries.reduce((s,e)=>{const c=[e.supps,e.caffeine_cutoff,e.skincare_am,e.skincare_pm,e.ate_consistently,e.wind_down_cutoff];return s+c.filter(Boolean).length/c.length;},0)/entries.length*100);
+    html+=`<div class="weekly-summary"><h3>Summary</h3><div class="stat"><span>Sessions</span><span class="stat-val">${trained}</span></div><div class="stat"><span>Adherence</span><span class="stat-val">${avgAdh}%</span></div></div>`;
+  }
+  document.getElementById('history').innerHTML=html;
 }
+
+// Photo prompt
+if(new Date().getDay()===0)document.getElementById('photo-prompt').innerHTML='<div class="photo-prompt"><div class="icon">📸</div><p>Progress photo day! Front + side, same spot as last week.</p></div>';
 
 // GitHub helper
-async function ghPut(path, data, msg) {
-  const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
-  let sha = null;
-  const getResp = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${path}`, { headers: { 'Authorization': `token ${CONFIG.token}` } });
-  if (getResp.ok) sha = (await getResp.json()).sha;
-  const body = { message: msg, content, branch: 'main' };
-  if (sha) body.sha = sha;
-  const resp = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${path}`, {
-    method: 'PUT', headers: { 'Authorization': `token ${CONFIG.token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body)
-  });
-  if (!resp.ok) throw new Error((await resp.json()).message);
-}
-
-// History
-async function loadHistory() {
-  try {
-    const resp = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.path}`, { headers: { 'Authorization': `token ${CONFIG.token}` } });
-    if (!resp.ok) return;
-    const files = (await resp.json()).filter(f => f.name.endsWith('.json')).sort((a, b) => b.name.localeCompare(a.name)).slice(0, 7);
-    let entries = [], streak = 0;
-    for (const f of files) { const r = await fetch(f.download_url); entries.push(await r.json()); }
-
-    const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date));
-    for (const entry of sorted) {
-      const expected = new Date(); expected.setDate(expected.getDate() - streak);
-      if (entry.date === expected.toISOString().split('T')[0]) streak++; else break;
-    }
-
-    document.getElementById('meta-display').innerHTML = `🔥 <span>${streak}</span> day streak | ${entries.length} check-ins`;
-
-    let html = '<h2>Recent</h2>';
-    sorted.slice(0, 3).forEach(d => {
-      const checks = [d.supps, d.caffeine_cutoff, d.skincare_am, d.skincare_pm, d.ate_consistently, d.wind_down_cutoff];
-      const pct = Math.round(checks.filter(Boolean).length / checks.length * 100);
-      html += `<div class="history-day"><div class="date">${d.date} ${d.trained?'🏋️':''}</div><div class="details">`;
-      if (d.weight) html += `${d.weight}kg · `;
-      html += `E${d.energy}/10 · R${d.arm_recovery}/10 · ${pct}% adherence</div></div>`;
-    });
-
-    if (entries.length >= 3) {
-      const trained = entries.filter(e => e.trained).length;
-      const avgAdh = Math.round(entries.reduce((s, e) => {
-        const c = [e.supps, e.caffeine_cutoff, e.skincare_am, e.skincare_pm, e.ate_consistently, e.wind_down_cutoff];
-        return s + c.filter(Boolean).length / c.length;
-      }, 0) / entries.length * 100);
-      html += `<div class="weekly-summary"><h3>Week Summary</h3>`;
-      html += `<div class="stat"><span>Sessions</span><span class="stat-val">${trained}/${entries.length} days</span></div>`;
-      html += `<div class="stat"><span>Adherence</span><span class="stat-val">${avgAdh}%</span></div></div>`;
-    }
-    document.getElementById('history').innerHTML = html;
-  } catch(e) {}
+async function ghPut(path,data,msg){
+  const content=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));
+  let sha=null;
+  const g=await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${path}`,{headers:{'Authorization':`token ${CONFIG.token}`}});
+  if(g.ok)sha=(await g.json()).sha;
+  const body={message:msg,content,branch:'main'};if(sha)body.sha=sha;
+  const r=await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${path}`,{method:'PUT',headers:{'Authorization':`token ${CONFIG.token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!r.ok)throw new Error((await r.json()).message);
 }
 
 loadHistory();
