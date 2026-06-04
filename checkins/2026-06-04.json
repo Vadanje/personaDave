@@ -1,0 +1,19 @@
+{
+  "date": "2026-06-04",
+  "weight": "62.8",
+  "sleep": {
+    "bed": "02:03",
+    "wake": "05:30"
+  },
+  "energy": 3,
+  "arm_recovery": 5,
+  "trained": false,
+  "session": null,
+  "supps": true,
+  "caffeine_cutoff": true,
+  "skincare_am": false,
+  "skincare_pm": false,
+  "ate_consistently": false,
+  "wind_down_cutoff": true,
+  "notes": null
+}
