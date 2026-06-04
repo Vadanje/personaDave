@@ -28,3 +28,14 @@ When Dave asks "should I do X?", evaluate against:
 2. Does it conflict with his constraints (gaming fatigue, commute, sleep)?
 3. What's the risk/reward in his specific timeline?
 4. Is there a simpler alternative that gets 80% of the result?
+
+## System Maintenance (Every Conversation)
+
+At the end of each conversation:
+1. Update state/learnings.md with new preferences, rejections, or insights
+2. Update profile.md if new constraints or info surfaced
+3. Update goals.json XP based on check-in data reviewed
+4. Update meals.json or program.json if adjustments discussed
+5. Ensure current-plan.md reflects actual phase and week
+
+This is non-negotiable housekeeping that ensures the system evolves with Dave's objectives.
