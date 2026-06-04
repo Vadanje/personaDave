@@ -51,6 +51,19 @@ button:disabled{background:#555;color:#999}
 .protocol-section ul{padding-left:16px}
 .photo-prompt{background:#2a1a0f;border:1px solid #f0c04044;border-radius:8px;padding:12px;margin-bottom:12px;text-align:center}
 .photo-prompt .icon{font-size:2rem}.photo-prompt p{font-size:.85rem;color:#f0c040;margin-top:6px}
+.quick-progress{display:flex;gap:4px;margin-bottom:16px}
+.quick-progress .dot{flex:1;height:4px;border-radius:2px;background:#333}
+.quick-progress .dot.done{background:#00d4aa}
+.quick-progress .dot.current{background:#00d4aa88}
+.quick-card{background:#16213e;border-radius:12px;padding:20px;min-height:180px;display:flex;flex-direction:column;justify-content:center}
+.quick-card h3{color:#00d4aa;font-size:1rem;margin-bottom:16px;text-align:center}
+.quick-card .q-checks{display:flex;flex-direction:column;gap:12px}
+.quick-card .q-check{display:flex;align-items:center;gap:12px;padding:10px;background:#1a1a2e;border-radius:8px;cursor:pointer}
+.quick-card .q-check input{width:24px;height:24px;accent-color:#00d4aa}
+.quick-card .q-check label{font-size:.95rem;color:#eee}
+.quick-card input[type="number"],.quick-card input[type="time"]{font-size:1.4rem;text-align:center;padding:14px}
+.quick-card .slider-big{width:100%}
+.quick-card .slider-big-val{text-align:center;font-size:2rem;color:#00d4aa;font-weight:bold;margin-top:8px}
 .review-box{background:#16213e;border-radius:8px;padding:12px;font-size:.8rem;color:#ccc;white-space:pre-wrap;line-height:1.5}
 .sparkline{display:flex;align-items:flex-end;gap:3px;height:50px;margin:12px 0;padding:8px;background:#16213e;border-radius:8px}
 .sparkline .bar{background:#00d4aa;border-radius:2px 2px 0 0;min-width:12px;flex:1;position:relative}
@@ -74,38 +87,54 @@ button:disabled{background:#555;color:#999}
 
 <!-- CHECK-IN -->
 <div class="page active" id="page-checkin">
-  <div class="field"><label>Weight (kg)</label><input type="number" id="weight" step="0.1" placeholder="62.8"></div>
-  <div id="weight-graph"></div>
-
-  <div class="measure-field" id="measure-section" style="display:none">
-    <label>💪 Weekly Arm Measurement (cm, flexed)</label>
-    <input type="number" id="arm-measure" step="0.1" placeholder="e.g. 33.5" style="margin-top:6px">
+  <!-- Quick Entry Mode -->
+  <div id="quick-mode">
+    <div class="quick-progress" id="quick-progress"></div>
+    <div class="quick-card" id="quick-card"></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn-secondary" style="flex:1" onclick="quickPrev()">← Back</button>
+      <button style="flex:2" onclick="quickNext()" id="quick-next-btn">Next →</button>
+    </div>
   </div>
 
-  <div class="section"><h2>Sleep</h2>
-    <div class="field"><label>Bed time</label><input type="time" id="bed" onchange="calcSleep()"></div>
-    <div class="field"><label>Wake time</label><input type="time" id="wake" onchange="calcSleep()"></div>
-    <div class="sleep-calc" id="sleep-duration"></div>
+  <button class="btn-secondary" onclick="toggleFullForm()" id="toggle-form-btn" style="margin-top:12px;font-size:.8rem">Switch to full form</button>
+
+  <!-- Full Form (hidden by default) -->
+  <div id="full-form" style="display:none">
+    <div class="field"><label>Weight (kg)</label><input type="number" id="weight" step="0.1" placeholder="62.8"></div>
+    <div id="weight-graph"></div>
+
+    <div class="measure-field" id="measure-section" style="display:none">
+      <label>💪 Weekly Arm Measurement (cm, flexed)</label>
+      <input type="number" id="arm-measure" step="0.1" placeholder="e.g. 33.5" style="margin-top:6px">
+    </div>
+
+    <div class="section"><h2>Sleep</h2>
+      <div class="field"><label>Bed time</label><input type="time" id="bed" onchange="calcSleep()"></div>
+      <div class="field"><label>Wake time</label><input type="time" id="wake" onchange="calcSleep()"></div>
+      <div class="sleep-calc" id="sleep-duration"></div>
+    </div>
+
+    <div class="section"><h2>Ratings</h2>
+      <div class="slider-row"><label>Energy <span id="energy-val"></span></label><input type="range" id="energy" min="1" max="10" value="0" oninput="document.getElementById('energy-val').textContent='('+this.value+'/10)'"></div>
+      <div class="slider-row"><label>Arm Recovery <span id="recovery-val"></span></label><input type="range" id="recovery" min="1" max="10" value="0" oninput="document.getElementById('recovery-val').textContent='('+this.value+'/10)'"></div>
+    </div>
+
+    <div class="section"><h2>Adherence</h2>
+      <div class="check-row"><input type="checkbox" id="trained"><label for="trained">Trained today</label></div>
+      <div class="check-row"><input type="checkbox" id="supps"><label for="supps">All supplements taken</label></div>
+      <div class="check-row"><input type="checkbox" id="caffeine"><label for="caffeine">Caffeine cutoff respected</label></div>
+      <div class="check-row"><input type="checkbox" id="skincare-am"><label for="skincare-am">AM skincare done</label></div>
+      <div class="check-row"><input type="checkbox" id="skincare-pm"><label for="skincare-pm">PM skincare done</label></div>
+      <div class="check-row"><input type="checkbox" id="ate"><label for="ate">Ate consistently (no fasting)</label></div>
+      <div class="check-row"><input type="checkbox" id="wind-down"><label for="wind-down">Evening wind-down cutoff</label></div>
+      <div class="check-row"><input type="checkbox" id="protein-hit"><label for="protein-hit">Hit 130g+ protein</label></div>
+    </div>
+
+    <div class="field" style="margin-top:16px"><label>Notes</label><textarea id="notes" placeholder="Anything notable..."></textarea></div>
+    <button onclick="submitCheckin()">Submit Check-in</button>
   </div>
 
-  <div class="section"><h2>Ratings</h2>
-    <div class="slider-row"><label>Energy <span id="energy-val"></span></label><input type="range" id="energy" min="1" max="10" value="0" oninput="document.getElementById('energy-val').textContent='('+this.value+'/10)'"></div>
-    <div class="slider-row"><label>Arm Recovery <span id="recovery-val"></span></label><input type="range" id="recovery" min="1" max="10" value="0" oninput="document.getElementById('recovery-val').textContent='('+this.value+'/10)'"></div>
-  </div>
-
-  <div class="section"><h2>Adherence</h2>
-    <div class="check-row"><input type="checkbox" id="trained"><label for="trained">Trained today</label></div>
-    <div class="check-row"><input type="checkbox" id="supps"><label for="supps">All supplements taken</label></div>
-    <div class="check-row"><input type="checkbox" id="caffeine"><label for="caffeine">Caffeine cutoff respected</label></div>
-    <div class="check-row"><input type="checkbox" id="skincare-am"><label for="skincare-am">AM skincare done</label></div>
-    <div class="check-row"><input type="checkbox" id="skincare-pm"><label for="skincare-pm">PM skincare done</label></div>
-    <div class="check-row"><input type="checkbox" id="ate"><label for="ate">Ate consistently (no fasting)</label></div>
-    <div class="check-row"><input type="checkbox" id="wind-down"><label for="wind-down">Evening wind-down cutoff</label></div>
-    <div class="check-row"><input type="checkbox" id="protein-hit"><label for="protein-hit">Hit 130g+ protein</label></div>
-  </div>
-
-  <div class="field" style="margin-top:16px"><label>Notes</label><textarea id="notes" placeholder="Anything notable..."></textarea></div>
-  <button onclick="submitCheckin()">Submit Check-in</button>
   <div id="checkin-status"></div>
   <div class="section" id="history"></div>
 </div>
@@ -411,6 +440,99 @@ async function loadHistory() {
 // Photo prompt
 if(new Date().getDay()===0)document.getElementById('photo-prompt').innerHTML='<div class="photo-prompt"><div class="icon">📸</div><p>Progress photo day! Front + side, same spot as last week.</p></div>';
 
+// Quick Entry Mode
+const quickData = {};
+let quickStep = 0;
+const quickSteps = [
+  { id:'weight', title:'⚖️ Weight', type:'number', placeholder:'62.8', step:'0.1' },
+  { id:'sleep', title:'😴 Sleep', type:'sleep' },
+  { id:'energy', title:'⚡ Energy Level', type:'slider' },
+  { id:'recovery', title:'💪 Arm Recovery', type:'slider' },
+  { id:'adherence', title:'✓ Today\'s Adherence', type:'checks', items:[
+    {id:'trained',label:'Trained'},{id:'supps',label:'Supplements taken'},{id:'caffeine',label:'Caffeine cutoff'},
+    {id:'skincare-am',label:'AM skincare'},{id:'skincare-pm',label:'PM skincare'},
+    {id:'ate',label:'Ate consistently'},{id:'wind-down',label:'Wind-down cutoff'},{id:'protein-hit',label:'130g+ protein'}
+  ]},
+  { id:'done', title:'🚀 Submit', type:'submit' }
+];
+
+function renderQuickCard() {
+  const step = quickSteps[quickStep];
+  const card = document.getElementById('quick-card');
+  const btn = document.getElementById('quick-next-btn');
+  btn.textContent = quickStep === quickSteps.length-1 ? 'Submit ✓' : 'Next →';
+  let dots = quickSteps.map((_,i) => `<div class="dot ${i<quickStep?'done':i===quickStep?'current':''}"></div>`).join('');
+  document.getElementById('quick-progress').innerHTML = dots;
+
+  if (step.type === 'number') {
+    card.innerHTML = `<h3>${step.title}</h3><input type="number" step="${step.step}" placeholder="${step.placeholder}" id="q-${step.id}" value="${quickData[step.id]||''}" onchange="quickData['${step.id}']=this.value">`;
+  } else if (step.type === 'sleep') {
+    card.innerHTML = `<h3>${step.title}</h3>
+      <label style="margin-bottom:4px">Bed time</label><input type="time" id="q-bed" value="${quickData.bed||''}" onchange="quickData.bed=this.value;qSleepCalc()">
+      <label style="margin-top:12px;margin-bottom:4px">Wake time</label><input type="time" id="q-wake" value="${quickData.wake||''}" onchange="quickData.wake=this.value;qSleepCalc()">
+      <div class="sleep-calc" id="q-sleep-dur"></div>`;
+    setTimeout(qSleepCalc,10);
+  } else if (step.type === 'slider') {
+    const val = quickData[step.id]||5;
+    card.innerHTML = `<h3>${step.title}</h3><input type="range" class="slider-big" min="1" max="10" value="${val}" oninput="quickData['${step.id}']=parseInt(this.value);document.getElementById('q-sval').textContent=this.value"><div class="slider-big-val" id="q-sval">${val}</div>`;
+  } else if (step.type === 'checks') {
+    let html = `<h3>${step.title}</h3><div class="q-checks">`;
+    step.items.forEach(item => {
+      const checked = quickData[item.id] ? 'checked' : '';
+      html += `<div class="q-check" onclick="this.querySelector('input').click()"><input type="checkbox" ${checked} onclick="event.stopPropagation();quickData['${item.id}']=this.checked"><label>${item.label}</label></div>`;
+    });
+    card.innerHTML = html + '</div>';
+  } else if (step.type === 'submit') {
+    const checks = ['trained','supps','caffeine','skincare-am','skincare-pm','ate','wind-down','protein-hit'];
+    const done = checks.filter(c => quickData[c]).length;
+    card.innerHTML = `<h3>Ready to submit</h3><div style="text-align:center;color:#aaa;font-size:.9rem">
+      <p>Weight: ${quickData.weight||'--'}kg</p>
+      <p>Sleep: ${quickData.bed||'--'} → ${quickData.wake||'--'}</p>
+      <p>Energy: ${quickData.energy||'--'}/10 | Recovery: ${quickData.recovery||'--'}/10</p>
+      <p>Adherence: ${done}/${checks.length} ✓</p></div>`;
+  }
+}
+
+function qSleepCalc() {
+  const bed=document.getElementById('q-bed')?.value, wake=document.getElementById('q-wake')?.value;
+  const el=document.getElementById('q-sleep-dur');if(!el)return;
+  if(!bed||!wake){el.textContent='';return;}
+  let[bh,bm]=bed.split(':').map(Number),[wh,wm]=wake.split(':').map(Number);
+  let mins=(wh*60+wm)-(bh*60+bm);if(mins<=0)mins+=1440;
+  el.textContent=`${Math.floor(mins/60)}h ${mins%60}m`;
+  el.className=mins>=420?'sleep-calc sleep-good':mins>=360?'sleep-calc sleep-ok':'sleep-calc sleep-bad';
+}
+
+function quickNext(){if(quickStep<quickSteps.length-1){quickStep++;renderQuickCard();}else quickSubmit();}
+function quickPrev(){if(quickStep>0){quickStep--;renderQuickCard();}}
+
+async function quickSubmit() {
+  const btn=document.getElementById('quick-next-btn');btn.disabled=true;btn.textContent='Saving...';
+  const data = {
+    date:today,weight:quickData.weight||null,
+    sleep:{bed:quickData.bed||'',wake:quickData.wake||''},
+    energy:quickData.energy||5,arm_recovery:quickData.recovery||5,
+    trained:!!quickData.trained,supps:!!quickData.supps,
+    caffeine_cutoff:!!quickData.caffeine,skincare_am:!!quickData['skincare-am'],
+    skincare_pm:!!quickData['skincare-pm'],ate_consistently:!!quickData.ate,
+    wind_down_cutoff:!!quickData['wind-down'],protein_hit:!!quickData['protein-hit'],
+    arm_measurement:null,notes:null
+  };
+  const status=document.getElementById('checkin-status');
+  try{await ghPut(`${CONFIG.path}${today}.json`,data,`checkin ${today}`);status.className='status ok';status.textContent='✓ Saved!';loadHistory();}
+  catch(e){status.className='status err';status.textContent='Error: '+e.message;}
+  btn.disabled=false;btn.textContent='Submit ✓';
+}
+
+function toggleFullForm() {
+  const quick=document.getElementById('quick-mode'),full=document.getElementById('full-form'),btn=document.getElementById('toggle-form-btn');
+  if(full.style.display==='none'){full.style.display='block';quick.style.display='none';btn.textContent='Switch to quick entry';}
+  else{full.style.display='none';quick.style.display='block';btn.textContent='Switch to full form';}
+}
+
+renderQuickCard();
+loadHistory();
+
 // GitHub helper
 async function ghPut(path,data,msg){
   const content=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));
@@ -421,8 +543,6 @@ async function ghPut(path,data,msg){
   const r=await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${path}`,{method:'PUT',headers:{'Authorization':`token ${CONFIG.token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});
   if(!r.ok)throw new Error((await r.json()).message);
 }
-
-loadHistory();
 </script>
 </body>
 </html>
