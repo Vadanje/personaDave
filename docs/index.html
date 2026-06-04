@@ -149,18 +149,16 @@ button:disabled{background:#555;color:#999}
 <!-- TRAINING -->
 <div class="page" id="page-training">
   <div class="field"><label>Session Type</label>
-    <select id="train-session" onchange="prefillSession()">
+    <select id="train-session" onchange="loadSession()">
       <option value="">Select...</option>
       <option value="Day 1: Push + Arms">Day 1: Push + Arms</option>
       <option value="Day 2: Pull + Arms">Day 2: Pull + Arms</option>
       <option value="Day 3: Arms + Shoulders">Day 3: Arms + Shoulders</option>
-      <option value="Bonus: Arms">Bonus: Arms</option>
     </select>
   </div>
   <div id="prev-session-note"></div>
   <div id="exercises"></div>
-  <button class="btn-secondary" onclick="addExercise()">+ Add Exercise</button>
-  <button onclick="submitTraining()">Save Training Log</button>
+  <button onclick="submitTraining()" id="save-training-btn" style="display:none">Save Training Log</button>
   <div id="training-status"></div>
   <div class="section" id="training-history"><h2>Recent Sessions</h2></div>
 </div>
@@ -317,50 +315,89 @@ async function submitCheckin() {
 
 // Training
 let exercises = [];
-function addExercise(name='',sets=[{weight:'',reps:''}]) {
-  exercises.push({name,sets});
+let programDB = {};
+
+async function loadProgramDB() {
+  try {
+    const resp = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/program.json`,{headers:{'Authorization':`token ${CONFIG.token}`}});
+    if(!resp.ok)return;
+    const file = await resp.json();
+    programDB = JSON.parse(decodeURIComponent(escape(atob(file.content))));
+  } catch(e) {}
+}
+loadProgramDB();
+
+async function loadSession() {
+  const session = document.getElementById('train-session').value;
+  if (!session) { document.getElementById('exercises').innerHTML=''; document.getElementById('save-training-btn').style.display='none'; return; }
+  document.getElementById('save-training-btn').style.display='block';
+
+  const template = programDB.sessions?.[session] || [];
+  const prevData = await getLastSession(session);
+
+  exercises = template.map((ex, i) => {
+    const prev = prevData?.[i];
+    const sets = [];
+    for (let s = 0; s < ex.sets; s++) {
+      sets.push({ weight: prev?.sets?.[s]?.weight || '', reps: prev?.sets?.[s]?.reps || '' });
+    }
+    return { name: ex.name, targetReps: ex.reps, sets, prev: prev ? prev.sets.map(s=>s.weight+'kg×'+s.reps).join(', ') : null };
+  });
+
+  if (prevData) {
+    document.getElementById('prev-session-note').innerHTML=`<div class="prev-data">📋 Pre-filled from last session. Beat these numbers!</div>`;
+  } else {
+    document.getElementById('prev-session-note').innerHTML=`<div class="prev-data">First time logging this session. Enter your weights.</div>`;
+  }
   renderExercises();
 }
-function renderExercises() {
-  let html='';
-  exercises.forEach((ex,i) => {
-    html+=`<div class="exercise-entry"><div style="display:flex;gap:8px;align-items:center"><input type="text" placeholder="Exercise name" value="${ex.name}" onchange="exercises[${i}].name=this.value" style="flex:1"><span class="remove-btn" onclick="exercises.splice(${i},1);renderExercises()">✕</span></div>`;
-    if(ex.prev) html+=`<div class="prev-data">Last: ${ex.prev}</div>`;
-    ex.sets.forEach((s,j) => {
-      html+=`<div class="set-row"><span class="set-num">Set ${j+1}</span><input type="number" placeholder="kg" value="${s.weight}" onchange="exercises[${i}].sets[${j}].weight=this.value"><input type="number" placeholder="reps" value="${s.reps}" onchange="exercises[${i}].sets[${j}].reps=this.value"></div>`;
-    });
-    html+=`<button class="btn-secondary btn-sm" onclick="exercises[${i}].sets.push({weight:'',reps:''});renderExercises()">+ Set</button></div>`;
-  });
-  document.getElementById('exercises').innerHTML=html;
-}
 
-async function prefillSession() {
-  const session = document.getElementById('train-session').value;
-  if (!session) return;
-  exercises = [];
+async function getLastSession(session) {
   try {
     const resp = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/training`,{headers:{'Authorization':`token ${CONFIG.token}`}});
-    if (!resp.ok) { addExercise(); return; }
+    if(!resp.ok) return null;
     const files = (await resp.json()).filter(f=>f.name.endsWith('.json')).sort((a,b)=>b.name.localeCompare(a.name));
     for (const f of files) {
       const r = await fetch(f.download_url); const d = await r.json();
-      if (d.session === session) {
-        document.getElementById('prev-session-note').innerHTML=`<div class="prev-data">📋 Pre-filled from ${d.date}. Beat these numbers!</div>`;
-        d.exercises.forEach(ex => {
-          const prev = ex.sets.map(s=>s.weight+'kg×'+s.reps).join(', ');
-          exercises.push({name:ex.name, sets:ex.sets.map(s=>({weight:s.weight,reps:s.reps})), prev});
-        });
-        renderExercises();
-        return;
-      }
+      if (d.session === session) return d.exercises;
     }
   } catch(e) {}
-  addExercise();
+  return null;
+}
+
+function renderExercises() {
+  const inc = programDB.increment || 2.5;
+  let html = '';
+  exercises.forEach((ex, i) => {
+    html += `<div class="exercise-entry">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <strong style="color:#eee;font-size:.9rem">${ex.name}</strong>
+        <span style="color:#888;font-size:.75rem">${ex.sets.length}×${ex.targetReps}</span>
+      </div>`;
+    if (ex.prev) html += `<div class="prev-data">Last: ${ex.prev}</div>`;
+    ex.sets.forEach((s, j) => {
+      html += `<div class="set-row">
+        <span class="set-num">S${j+1}</span>
+        <input type="number" placeholder="kg" value="${s.weight}" step="${inc}" onchange="exercises[${i}].sets[${j}].weight=this.value" id="ex${i}s${j}w">
+        <input type="number" placeholder="reps" value="${s.reps}" onchange="exercises[${i}].sets[${j}].reps=this.value">
+        <button class="btn-sm btn-secondary" style="width:auto;margin:0;padding:6px 10px;font-size:.9rem" onclick="incrementWeight(${i},${j})">+${inc}</button>
+      </div>`;
+    });
+    html += '</div>';
+  });
+  document.getElementById('exercises').innerHTML = html;
+}
+
+function incrementWeight(exIdx, setIdx) {
+  const inc = programDB.increment || 2.5;
+  const current = parseFloat(exercises[exIdx].sets[setIdx].weight) || 0;
+  exercises[exIdx].sets[setIdx].weight = (current + inc).toString();
+  document.getElementById(`ex${exIdx}s${setIdx}w`).value = exercises[exIdx].sets[setIdx].weight;
 }
 
 async function submitTraining() {
-  const btn=event.target;btn.disabled=true;btn.textContent='Saving...';
-  const data={date:today,session:document.getElementById('train-session').value,exercises};
+  const btn=document.getElementById('save-training-btn');btn.disabled=true;btn.textContent='Saving...';
+  const data={date:today,session:document.getElementById('train-session').value,exercises:exercises.map(e=>({name:e.name,sets:e.sets}))};
   const status=document.getElementById('training-status');
   try{await ghPut(`training/${today}.json`,data,`training ${today}`);status.className='status ok';status.textContent='✓ Saved!';loadTrainingHistory();}
   catch(e){status.className='status err';status.textContent='Error: '+e.message;}

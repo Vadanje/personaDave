@@ -1,0 +1,29 @@
+{
+  "sessions": {
+    "Day 1: Push + Arms": [
+      {"name": "Incline DB Press", "sets": 4, "reps": "8-10"},
+      {"name": "Dips / Machine Press", "sets": 3, "reps": "10-12"},
+      {"name": "Cable Rope Pushdowns", "sets": 4, "reps": "12-15"},
+      {"name": "Overhead Cable Extension", "sets": 3, "reps": "12-15"},
+      {"name": "Incline DB Curls", "sets": 3, "reps": "10-12"},
+      {"name": "Hammer Curls", "sets": 3, "reps": "10-12"}
+    ],
+    "Day 2: Pull + Arms": [
+      {"name": "Pull-ups / Lat Pulldown", "sets": 3, "reps": "8-10"},
+      {"name": "Cable Row", "sets": 3, "reps": "10-12"},
+      {"name": "Barbell Curls", "sets": 4, "reps": "8-10"},
+      {"name": "Spider Curls", "sets": 3, "reps": "10-12"},
+      {"name": "Rope Pushdowns", "sets": 3, "reps": "12-15"},
+      {"name": "Close-Grip Push-ups", "sets": 2, "reps": "failure"}
+    ],
+    "Day 3: Arms + Shoulders": [
+      {"name": "DB Shoulder Press", "sets": 3, "reps": "10-12"},
+      {"name": "Lateral Raises", "sets": 4, "reps": "12-15"},
+      {"name": "EZ Bar Curl", "sets": 4, "reps": "8-10"},
+      {"name": "Concentration Curls", "sets": 3, "reps": "10-12"},
+      {"name": "Skull Crushers", "sets": 4, "reps": "10-12"},
+      {"name": "Cable Kickbacks", "sets": 3, "reps": "12-15"}
+    ]
+  },
+  "increment": 2.5
+}
