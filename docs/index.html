@@ -78,6 +78,10 @@ button:disabled{background:#555;color:#999}
 .upcoming-goal{background:#16213e;border-radius:8px;padding:12px;margin-bottom:8px}
 .upcoming-goal h4{color:#eee;font-size:.9rem;margin-bottom:4px}
 .upcoming-goal p{color:#888;font-size:.8rem}
+.ip-item{display:flex;align-items:center;gap:10px;background:#16213e;border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:pointer}
+.ip-item input{width:20px;height:20px;accent-color:#00d4aa}
+.ip-item span{font-size:.85rem;color:#eee;flex:1}
+.ip-item.done span{text-decoration:line-through;color:#666}
 </style>
 </head>
 <body>
@@ -195,7 +199,12 @@ button:disabled{background:#555;color:#999}
     <div style="margin-top:12px;font-size:.8rem;color:#888" id="goal-deadline"></div>
   </div>
 
-  <div id="achievements-section">
+  <div id="achievements-section" style="margin-top:20px">
+    <h2 style="color:#00d4aa;font-size:1rem;margin-bottom:12px">📌 In Progress</h2>
+    <div id="in-progress-list"></div>
+  </div>
+
+  <div style="margin-top:20px">
     <h2 style="color:#00d4aa;font-size:1rem;margin-bottom:12px">🏆 Achievements</h2>
     <div id="achievements-list" style="display:flex;flex-wrap:wrap;gap:8px"></div>
     <p style="font-size:.8rem;color:#666;margin-top:8px" id="no-achievements">Train consistently to unlock achievements.</p>
@@ -740,12 +749,28 @@ function renderGoals() {
     document.getElementById('achievements-list').innerHTML = achievements.map(a => `<div class="badge"><span class="icon">${a.icon}</span>${a.name}</div>`).join('');
   }
 
+  // In Progress
+  const ipItems = goalsDB.in_progress || [];
+  let ipHtml = '';
+  ipItems.forEach((item, i) => {
+    const done = item.status === 'done';
+    ipHtml += `<div class="ip-item ${done?'done':''}" onclick="toggleIP(${i})"><input type="checkbox" ${done?'checked':''} onclick="event.stopPropagation();toggleIP(${i})"><span>${item.text}</span></div>`;
+  });
+  document.getElementById('in-progress-list').innerHTML = ipHtml;
+
   let upcoming = '';
   (goalsDB.upcoming||[]).forEach(u => { upcoming += `<div class="upcoming-goal"><h4>${u.title}</h4><p>${u.why}</p><p style="color:#00d4aa;font-size:.75rem">Target: ${u.deadline}</p></div>`; });
   document.getElementById('upcoming-goals').innerHTML = upcoming;
 }
 
 loadGoals();
+
+async function toggleIP(idx) {
+  if (!goalsDB.in_progress || !goalsDB.in_progress[idx]) return;
+  goalsDB.in_progress[idx].status = goalsDB.in_progress[idx].status === 'done' ? 'in_progress' : 'done';
+  renderGoals();
+  try { await ghPut('goals.json', goalsDB, 'update in-progress item'); } catch(e) { console.error(e); }
+}
 
 // Load meals database
 let mealsDB = {};
