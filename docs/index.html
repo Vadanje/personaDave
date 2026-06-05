@@ -36,8 +36,11 @@ button:disabled{background:#555;color:#999}
 .status{text-align:center;margin-top:12px;padding:10px;border-radius:8px}
 .ok{background:#0a3d2a;color:#00d4aa}.err{background:#3d0a0a;color:#ff6b6b}
 .section{margin-top:20px;padding-top:12px;border-top:1px solid #333}.section h2{font-size:1rem;color:#00d4aa;margin-bottom:10px}
-.history-day{background:#16213e;border-radius:8px;padding:10px;margin-bottom:8px;font-size:.8rem}
+.history-day{background:#16213e;border-radius:8px;padding:10px;margin-bottom:8px;font-size:.8rem;cursor:pointer;border:1px solid transparent;transition:border-color .2s}
+.history-day:active,.history-day:hover{border-color:#00d4aa}
 .history-day .date{color:#00d4aa;font-weight:bold;margin-bottom:4px}.history-day .details{color:#aaa;line-height:1.4}
+.editing-banner{background:#2a1a0f;border:1px solid #f0c040;border-radius:8px;padding:10px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;font-size:.85rem;color:#f0c040}
+.editing-banner button{width:auto;margin:0;padding:6px 12px;font-size:.8rem;background:#f0c040;color:#1a1a2e}
 .weekly-summary{background:#0f2a1f;border:1px solid #00d4aa33;border-radius:8px;padding:12px;margin-top:16px}
 .weekly-summary h3{color:#00d4aa;font-size:.9rem;margin-bottom:8px}
 .weekly-summary .stat{display:flex;justify-content:space-between;font-size:.85rem;padding:3px 0}.weekly-summary .stat-val{color:#00d4aa;font-weight:bold}
@@ -107,6 +110,10 @@ button:disabled{background:#555;color:#999}
 
   <!-- Full Form (hidden by default) -->
   <div id="full-form" style="display:none">
+    <div id="editing-banner" style="display:none" class="editing-banner">
+      <span>✏️ Editing: <strong id="editing-date"></strong></span>
+      <button onclick="backToToday()">Back to today</button>
+    </div>
     <div class="field"><label>Weight (kg)</label><input type="number" id="weight" step="0.1" placeholder="62.8"></div>
     <div id="weight-graph"></div>
 
@@ -324,11 +331,71 @@ function renderWeightGraph(entries) {
   document.getElementById('weight-graph').innerHTML = html;
 }
 
-// Check-in
+// Edit past days
+let editingDate = today;
+
+async function loadDayForEdit(date) {
+  editingDate = date;
+  // Switch to full form
+  document.getElementById('quick-mode').style.display='none';
+  document.getElementById('full-form').style.display='block';
+  document.getElementById('toggle-form-btn').textContent='Switch to quick entry';
+
+  // Show editing banner
+  if (date !== today) {
+    document.getElementById('editing-banner').style.display='flex';
+    document.getElementById('editing-date').textContent=date;
+  } else {
+    document.getElementById('editing-banner').style.display='none';
+  }
+
+  // Find and load the data
+  const entry = allCheckins.find(e => e.date === date);
+  if (!entry) return;
+
+  document.getElementById('weight').value = entry.weight || '';
+  document.getElementById('bed').value = entry.sleep?.bed || '';
+  document.getElementById('wake').value = entry.sleep?.wake || '';
+  calcSleep();
+  document.getElementById('energy').value = entry.energy || 0;
+  document.getElementById('energy-val').textContent = entry.energy ? '('+entry.energy+'/10)' : '';
+  document.getElementById('recovery').value = entry.arm_recovery || 0;
+  document.getElementById('recovery-val').textContent = entry.arm_recovery ? '('+entry.arm_recovery+'/10)' : '';
+  document.getElementById('trained').checked = !!entry.trained;
+  document.getElementById('supps').checked = !!entry.supps;
+  document.getElementById('caffeine').checked = !!entry.caffeine_cutoff;
+  document.getElementById('skincare-am').checked = !!entry.skincare_am;
+  document.getElementById('skincare-pm').checked = !!entry.skincare_pm;
+  document.getElementById('ate').checked = !!entry.ate_consistently;
+  document.getElementById('wind-down').checked = !!entry.wind_down_cutoff;
+  document.getElementById('protein-hit').checked = !!entry.protein_hit;
+  if(document.getElementById('meal-breakfast')) document.getElementById('meal-breakfast').value = entry.meals?.breakfast || '';
+  if(document.getElementById('meal-lunch')) document.getElementById('meal-lunch').value = entry.meals?.lunch || '';
+  if(document.getElementById('meal-dinner')) document.getElementById('meal-dinner').value = entry.meals?.dinner || '';
+  if(document.getElementById('meal-snack')) document.getElementById('meal-snack').value = entry.meals?.snack || '';
+  document.getElementById('notes').value = entry.notes || '';
+}
+
+function backToToday() {
+  editingDate = today;
+  document.getElementById('editing-banner').style.display='none';
+  document.getElementById('weight').value = '';
+  document.getElementById('bed').value = '';
+  document.getElementById('wake').value = '';
+  document.getElementById('sleep-duration').textContent = '';
+  document.getElementById('energy').value = 0;
+  document.getElementById('energy-val').textContent = '';
+  document.getElementById('recovery').value = 0;
+  document.getElementById('recovery-val').textContent = '';
+  ['trained','supps','caffeine','skincare-am','skincare-pm','ate','wind-down','protein-hit'].forEach(id => document.getElementById(id).checked = false);
+  document.getElementById('notes').value = '';
+}
+
+// Check-in (updated to use editingDate)
 async function submitCheckin() {
   const btn=event.target;btn.disabled=true;btn.textContent='Submitting...';
   const data = {
-    date:today, weight:document.getElementById('weight').value||null,
+    date:editingDate, weight:document.getElementById('weight').value||null,
     sleep:{bed:document.getElementById('bed').value,wake:document.getElementById('wake').value},
     energy:parseInt(document.getElementById('energy').value),
     arm_recovery:parseInt(document.getElementById('recovery').value),
@@ -345,7 +412,7 @@ async function submitCheckin() {
     notes:document.getElementById('notes').value||null
   };
   const status=document.getElementById('checkin-status');
-  try { await ghPut(`${CONFIG.path}${today}.json`,data,`checkin ${today}`); status.className='status ok';status.textContent='✓ Saved!';loadHistory(); }
+  try { await ghPut(`${CONFIG.path}${editingDate}.json`,data,`checkin ${editingDate}`); status.className='status ok';status.textContent='✓ Saved!';loadHistory(); }
   catch(e){status.className='status err';status.textContent='Error: '+e.message;}
   btn.disabled=false;btn.textContent='Submit Check-in';
 }
@@ -518,11 +585,11 @@ async function loadHistory() {
   renderWeightGraph(entries);
 
   // History list
-  let html='<h2>Recent</h2>';
-  entries.slice(0,3).forEach(d=>{
+  let html='<h2>Recent <span style="font-size:.7rem;color:#888">(tap to edit)</span></h2>';
+  entries.slice(0,5).forEach(d=>{
     const checks=[d.supps,d.caffeine_cutoff,d.skincare_am,d.skincare_pm,d.ate_consistently,d.wind_down_cutoff];
     const pct=Math.round(checks.filter(Boolean).length/checks.length*100);
-    html+=`<div class="history-day"><div class="date">${d.date} ${d.trained?'🏋️':''}</div><div class="details">`;
+    html+=`<div class="history-day" onclick="loadDayForEdit('${d.date}')"><div class="date">${d.date} ${d.trained?'🏋️':''}</div><div class="details">`;
     if(d.weight)html+=`${d.weight}kg · `;
     html+=`E${d.energy}/10 · R${d.arm_recovery}/10 · ${pct}%</div></div>`;
   });
