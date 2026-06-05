@@ -98,6 +98,18 @@ button:disabled{background:#555;color:#999;transform:none}
 .sparkline .bar{background:linear-gradient(180deg,#00d4aa,#007755);border-radius:2px 2px 0 0;min-width:12px;flex:1;position:relative;transition:height .3s}
 .sparkline .bar-label{position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:.6rem;color:#aaa}
 
+/* Exercise pills */
+.ex-pill{display:inline-block;padding:6px 10px;border-radius:20px;font-size:.75rem;background:#1a1a2e;color:#aaa;border:1px solid #333;cursor:pointer;transition:all .2s}
+.ex-pill.active{background:#0f2a1f;color:#00d4aa;border-color:#00d4aa}
+.ex-pill:active{transform:scale(.95)}
+
+/* Spinner */
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid #1a1a2e44;border-top-color:#1a1a2e;border-radius:50%;animation:spin .6s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Success state (distinct from interactive teal) */
+.status.ok{background:#0a3d2a;color:#4aea8b}
+
 .measure-field{background:#0f2a1f;border:1px solid #00d4aa33;border-radius:10px;padding:12px;margin-bottom:14px}
 .measure-field label{color:#00d4aa}
 
@@ -137,6 +149,7 @@ button:disabled{background:#555;color:#999;transform:none}
     <div class="quick-card" id="quick-card"></div>
     <div style="display:flex;gap:8px;margin-top:12px">
       <button class="btn-secondary" style="flex:1" onclick="quickPrev()">← Back</button>
+      <button class="btn-secondary" style="flex:1" onclick="quickSkip()">Skip</button>
       <button style="flex:2" onclick="quickNext()" id="quick-next-btn">Next →</button>
     </div>
   </div>
@@ -173,10 +186,10 @@ button:disabled{background:#555;color:#999;transform:none}
       <div class="check-row"><input type="checkbox" id="protein-hit"><label for="protein-hit">Hit 130g+ protein</label></div>
     </div>
     <div class="section"><h2>Meals</h2>
-      <div class="field"><label>Breakfast</label><select id="meal-breakfast"><option value="">Select...</option></select></div>
-      <div class="field"><label>Lunch</label><select id="meal-lunch"><option value="">Select...</option></select></div>
-      <div class="field"><label>Dinner</label><select id="meal-dinner"><option value="">Select...</option></select></div>
-      <div class="field"><label>Snack</label><select id="meal-snack"><option value="">Select...</option></select></div>
+      <div class="field"><label>Breakfast</label><select id="meal-breakfast"><option value="">Select...</option></select><input type="text" id="meal-breakfast-custom" placeholder="What did you eat?" style="display:none;margin-top:6px"></div>
+      <div class="field"><label>Lunch</label><select id="meal-lunch"><option value="">Select...</option></select><input type="text" id="meal-lunch-custom" placeholder="What did you eat?" style="display:none;margin-top:6px"></div>
+      <div class="field"><label>Dinner</label><select id="meal-dinner"><option value="">Select...</option></select><input type="text" id="meal-dinner-custom" placeholder="What did you eat?" style="display:none;margin-top:6px"></div>
+      <div class="field"><label>Snack</label><select id="meal-snack"><option value="">Select...</option></select><input type="text" id="meal-snack-custom" placeholder="What did you eat?" style="display:none;margin-top:6px"></div>
     </div>
     <div class="field" style="margin-top:16px"><label>Notes</label><textarea id="notes" placeholder="Anything notable..."></textarea></div>
     <button onclick="submitCheckin()">Submit Check-in</button>
@@ -234,31 +247,7 @@ button:disabled{background:#555;color:#999;transform:none}
 
 <div class="page" id="page-protocol">
   <div id="photo-prompt"></div>
-  <div class="protocol-section"><h3>☀️ Morning</h3><ul>
-    <li>Creatine 5g with breakfast</li><li>Vitamin D3 4000 IU</li><li>Vitamin K2 75mcg</li>
-    <li>Skincare: Cleanser → Vit C → Niacinamide → Under-eye → Moisturiser → SPF</li></ul></div>
-  <div class="protocol-section"><h3>🏋️ Pre-Workout</h3><ul>
-    <li>Pre-workout (citrulline 4g, beta-alanine 3.2g, caffeine 200mg)</li><li>L-theanine 200mg</li><li>Tadalafil 5mg (daily, any time)</li></ul></div>
-  <div class="protocol-section"><h3>🌙 Evening</h3><ul>
-    <li>Magnesium bisglycinate 2 tablets (200mg elemental)</li><li>Omega-3 (2 tablets)</li><li>Finasteride 1mg</li>
-    <li>Caffeine cutoff by 4-5pm</li><li>Skincare: Cleanser → Niacinamide → Under-eye → Retinal → Moisturiser</li></ul></div>
-  <div class="protocol-section"><h3>🍗 Nutrition</h3><ul>
-    <li>4 eggs every morning (non-negotiable)</li><li>Rice/potato + protein for lunch and dinner</li>
-    <li>Target: 2200-2400 cal, 130-150g protein</li><li>No fasting</li><li>3L+ water daily (lemon/lime)</li></ul></div>
-  <div class="protocol-section"><h3>🍳 Recipes</h3><ul>
-    <li><strong>Beef Rice Bowl:</strong> 200g beef mince, paprika, soy sauce. Fry 8min. Over 150g rice + rocket.</li>
-    <li><strong>Lemon Chicken + Potato:</strong> 2 chicken thighs, lemon, oregano, salt. Oven 200°C 30min.</li>
-    <li><strong>Turkey Stir-Fry:</strong> 200g turkey mince, peppers, ginger, soy sauce. Over rice. 5min.</li>
-    <li><strong>Tuna Rice Cakes:</strong> Tin tuna + mayo + pepper on rice cakes. Zero-cook.</li>
-    <li><strong>Steak + Egg:</strong> Pan-sear steak 3min/side. Fry eggs in fat. Rice or wedges.</li>
-    <li><strong>Slow-Cook Shin:</strong> 1kg beef shin, tinned tomatoes, paprika, stock cube. 6-8hrs. 4+ meals.</li>
-    <li><strong>Egg Fried Rice:</strong> Cold rice, 3 eggs, soy sauce, frozen peas. 5min one-pan.</li>
-    <li><strong>Salmon + Rice:</strong> Salmon fillet, lemon, dill, salt. Oven 180°C 15min.</li>
-  </ul><p style="font-size:.7rem;color:#666;margin-top:8px">No dairy · No onion · No garlic · No spice · Low oxalate</p></div>
-  <div class="protocol-section"><h3>🏋️ Training (3x/week)</h3><ul>
-    <li><strong>Day 1:</strong> Push + Arms</li>
-    <li><strong>Day 2:</strong> Pull + Arms</li>
-    <li><strong>Day 3:</strong> Arms + Shoulders</li></ul></div>
+  <div id="protocol-content"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
 </div>
 
 <div class="page" id="page-review">
@@ -386,8 +375,9 @@ function backToToday(){
 }
 
 // Check-in submit
+function getMealVal(slot){const sel=document.getElementById('meal-'+slot).value;if(sel==='__other__')return document.getElementById('meal-'+slot+'-custom').value||null;return sel||null;}
 async function submitCheckin(){
-  const btn=event.target;btn.disabled=true;btn.textContent='Submitting...';
+  const btn=event.target;btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Submitting...';
   const data={date:editingDate,weight:document.getElementById('weight').value||null,
     sleep:{bed:document.getElementById('bed').value,wake:document.getElementById('wake').value},
     energy:parseInt(document.getElementById('energy').value)||null,
@@ -396,12 +386,12 @@ async function submitCheckin(){
     caffeine_cutoff:document.getElementById('caffeine').checked,skincare_am:document.getElementById('skincare-am').checked,
     skincare_pm:document.getElementById('skincare-pm').checked,ate_consistently:document.getElementById('ate').checked,
     wind_down_cutoff:document.getElementById('wind-down').checked,protein_hit:document.getElementById('protein-hit').checked,
-    meals:{breakfast:document.getElementById('meal-breakfast').value||null,lunch:document.getElementById('meal-lunch').value||null,dinner:document.getElementById('meal-dinner').value||null,snack:document.getElementById('meal-snack').value||null},
+    meals:{breakfast:getMealVal('breakfast'),lunch:getMealVal('lunch'),dinner:getMealVal('dinner'),snack:getMealVal('snack')},
     arm_measurement:document.getElementById('arm-measure')?.value||null,notes:document.getElementById('notes').value||null};
   const status=document.getElementById('checkin-status');
   try{await ghPut(`${CONFIG.path}${editingDate}.json`,data,`checkin ${editingDate}`);status.className='status ok';status.textContent='✓ Saved!';showSuccess();loadHistory();}
   catch(e){status.className='status err';status.textContent='Error: '+e.message;}
-  btn.disabled=false;btn.textContent='Submit Check-in';
+  btn.disabled=false;btn.innerHTML='Submit Check-in';
 }
 
 // Training
@@ -425,25 +415,25 @@ async function getLastSession(session){try{const r=await fetch(`https://api.gith
 function renderExercises(){
   const inc=programDB.increment||2.5;let html='';
   exercises.forEach((ex,i)=>{
-    html+=`<div class="exercise-entry"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-      <select style="flex:1;font-size:.85rem;padding:8px;background:#1a1a2e;color:#eee;border:1px solid #333;border-radius:6px" onchange="exercises[${i}].name=this.value">
-      <option value="${ex.name}" selected>${ex.name}</option>`;
-    (ex.alternatives||[]).forEach(alt=>{html+=`<option value="${alt}">${alt}</option>`;});
-    html+=`</select><span style="color:#888;font-size:.7rem;margin-left:8px">${ex.sets.length}×${ex.targetReps}</span></div>`;
+    html+=`<div class="exercise-entry"><div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">`;
+    const allOptions=[ex.name,...(ex.alternatives||[])];
+    allOptions.forEach(opt=>{html+=`<span class="ex-pill ${opt===ex.name?'active':''}" onclick="exercises[${i}].name='${opt.replace(/'/g,"\\'")}';renderExercises()">${opt}</span>`;});
+    html+=`</div><span style="color:#888;font-size:.7rem">${ex.sets.length}×${ex.targetReps}</span>`;
     if(ex.prev)html+=`<div class="prev-data">Last: ${ex.prev}</div>`;
     ex.sets.forEach((s,j)=>{html+=`<div class="set-row"><span class="set-num">S${j+1}</span><input type="number" placeholder="kg" value="${s.weight}" step="${inc}" onchange="exercises[${i}].sets[${j}].weight=this.value" id="ex${i}s${j}w"><input type="number" placeholder="reps" value="${s.reps}" onchange="exercises[${i}].sets[${j}].reps=this.value"><button class="btn-sm btn-secondary" style="width:auto;margin:0;padding:6px 10px;font-size:.85rem" onclick="incrementWeight(${i},${j})">+${inc}</button></div>`;});
-    html+='</div>';});
+    html+=`<button class="btn-sm btn-secondary" style="width:auto;margin:4px 0 0;padding:6px 12px;font-size:.75rem" onclick="addSet(${i})">+ Add set</button></div>`;});
   document.getElementById('exercises').innerHTML=html;
 }
+function addSet(i){const lastSet=exercises[i].sets[exercises[i].sets.length-1];exercises[i].sets.push({weight:lastSet?.weight||'',reps:lastSet?.reps||''});renderExercises();}
 function incrementWeight(i,j){const inc=programDB.increment||2.5;const c=parseFloat(exercises[i].sets[j].weight)||0;exercises[i].sets[j].weight=(c+inc).toString();document.getElementById(`ex${i}s${j}w`).value=exercises[i].sets[j].weight;}
 
 async function submitTraining(){
-  const btn=document.getElementById('save-training-btn');btn.disabled=true;btn.textContent='Saving...';
+  const btn=document.getElementById('save-training-btn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Saving...';
   const data={date:today,session:document.getElementById('train-session').value,exercises:exercises.map(e=>({name:e.name,sets:e.sets}))};
   const status=document.getElementById('training-status');
   try{await ghPut(`training/${today}.json`,data,`training ${today}`);status.className='status ok';status.textContent='✓ Saved!';showSuccess();loadTrainingHistory();}
   catch(e){status.className='status err';status.textContent='Error: '+e.message;}
-  btn.disabled=false;btn.textContent='Save Training Log';
+  btn.disabled=false;btn.innerHTML='Save Training Log';
 }
 async function loadTrainingHistory(){try{const r=await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/training`,{headers:{'Authorization':`token ${CONFIG.token}`}});if(!r.ok)return;const files=(await r.json()).filter(f=>f.name.endsWith('.json')).sort((a,b)=>b.name.localeCompare(a.name)).slice(0,5);let html='<h2>Recent Sessions</h2>';for(const f of files){const d=await(await fetch(f.download_url)).json();html+=`<div class="card"><div class="date">${d.date} — ${d.session||'Session'}</div><div class="details">`;(d.exercises||[]).forEach(ex=>{html+=`${ex.name}: ${ex.sets.map(s=>s.weight+'kg×'+s.reps).join(', ')}<br>`;});html+='</div></div>';}document.getElementById('training-history').innerHTML=html;}catch(e){}}
 
@@ -494,8 +484,10 @@ const quickSteps=[
     {id:'trained',label:'Trained'},{id:'supps',label:'Supplements'},{id:'caffeine',label:'Caffeine cutoff'},
     {id:'skincare-am',label:'AM skincare'},{id:'skincare-pm',label:'PM skincare'},
     {id:'ate',label:'Ate consistently'},{id:'wind-down',label:'Wind-down cutoff'},{id:'protein-hit',label:'130g+ protein'}]},
+  {id:'meals',title:'🍽️ Meals',type:'meals'},
   {id:'done',title:'🚀 Submit',type:'submit'}
 ];
+let quickMealsDB={};
 function renderQuickCard(){
   const step=quickSteps[quickStep];const card=document.getElementById('quick-card');const btn=document.getElementById('quick-next-btn');
   btn.textContent=quickStep===quickSteps.length-1?'Submit ✓':'Next →';
@@ -504,18 +496,31 @@ function renderQuickCard(){
   else if(step.type==='sleep'){card.innerHTML=`<h3>${step.title}</h3><label style="margin-bottom:4px">Bed</label><input type="time" id="q-bed" value="${quickData.bed||''}" onchange="quickData.bed=this.value;qSleepCalc()"><label style="margin-top:12px;margin-bottom:4px">Wake</label><input type="time" id="q-wake" value="${quickData.wake||''}" onchange="quickData.wake=this.value;qSleepCalc()"><div class="sleep-calc" id="q-sleep-dur"></div>`;setTimeout(qSleepCalc,10);}
   else if(step.type==='slider'){const val=quickData[step.id]||0;card.innerHTML=`<h3>${step.title}</h3><input type="range" class="slider-big" min="1" max="10" value="${val}" oninput="quickData['${step.id}']=parseInt(this.value);document.getElementById('q-sval').textContent=this.value"><div class="slider-big-val" id="q-sval">${val||'—'}</div>`;}
   else if(step.type==='checks'){let h=`<h3>${step.title}</h3><div class="q-checks">`;step.items.forEach(item=>{h+=`<div class="q-check" onclick="this.querySelector('input').click()"><input type="checkbox" ${quickData[item.id]?'checked':''} onclick="event.stopPropagation();quickData['${item.id}']=this.checked"><label>${item.label}</label></div>`;});card.innerHTML=h+'</div>';}
+  else if(step.type==='meals'){
+    const slots=['breakfast','lunch','dinner','snack'];
+    let h=`<h3>${step.title}</h3><div style="display:flex;flex-direction:column;gap:10px">`;
+    slots.forEach(slot=>{
+      const opts=(quickMealsDB[slot]||[]).map(m=>`<option value="${m}">${m}</option>`).join('');
+      const val=quickData['meal_'+slot]||'';
+      const isCustom=val&&val==='__other__';
+      h+=`<div><label style="font-size:.8rem;color:#aaa;margin-bottom:2px">${slot.charAt(0).toUpperCase()+slot.slice(1)}</label><select style="width:100%;padding:8px;border-radius:8px;border:1px solid #333;background:#1a1a2e;color:#eee;font-size:.9rem" onchange="quickData['meal_${slot}']=this.value;this.nextElementSibling.style.display=this.value==='__other__'?'block':'none'"><option value="">—</option>${opts}<option value="__other__">Other</option></select><input type="text" placeholder="What did you eat?" style="display:${isCustom?'block':'none'};margin-top:4px;padding:8px;border-radius:8px;border:1px solid #333;background:#16213e;color:#eee;font-size:.9rem;width:100%" onchange="quickData['meal_${slot}_custom']=this.value"></div>`;
+    });
+    card.innerHTML=h+'</div>';}
   else if(step.type==='submit'){const checks=['trained','supps','caffeine','skincare-am','skincare-pm','ate','wind-down','protein-hit'];const done=checks.filter(c=>quickData[c]).length;card.innerHTML=`<h3>Ready to submit</h3><div style="text-align:center;color:#aaa;font-size:.9rem;line-height:2"><p>Weight: ${quickData.weight||'—'}kg</p><p>Sleep: ${quickData.bed||'—'} → ${quickData.wake||'—'}</p><p>Energy: ${quickData.energy||'—'}/10 · Recovery: ${quickData.recovery||'—'}/10</p><p>Adherence: ${done}/${checks.length} ✓</p></div>`;}
 }
 function qSleepCalc(){const bed=document.getElementById('q-bed')?.value,wake=document.getElementById('q-wake')?.value;const el=document.getElementById('q-sleep-dur');if(!el)return;if(!bed||!wake){el.textContent='';el.className='sleep-calc';return;}let[bh,bm]=bed.split(':').map(Number),[wh,wm]=wake.split(':').map(Number);let mins=(wh*60+wm)-(bh*60+bm);if(mins<=0)mins+=1440;el.textContent=`${Math.floor(mins/60)}h ${mins%60}m`;el.className=mins>=420?'sleep-calc sleep-good':mins>=360?'sleep-calc sleep-ok':'sleep-calc sleep-bad';}
 function quickNext(){if(quickStep<quickSteps.length-1){quickStep++;renderQuickCard();}else quickSubmit();}
 function quickPrev(){if(quickStep>0){quickStep--;renderQuickCard();}}
+function quickSkip(){if(quickStep<quickSteps.length-1){quickStep++;renderQuickCard();}}
+function getQuickMealVal(slot){const sel=quickData['meal_'+slot];if(sel==='__other__')return quickData['meal_'+slot+'_custom']||null;return sel||null;}
 async function quickSubmit(){
-  const btn=document.getElementById('quick-next-btn');btn.disabled=true;btn.textContent='Saving...';
+  const btn=document.getElementById('quick-next-btn');btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Saving...';
   const data={date:today,weight:quickData.weight||null,sleep:{bed:quickData.bed||'',wake:quickData.wake||''},
     energy:quickData.energy||null,arm_recovery:quickData.recovery||null,
     trained:!!quickData.trained,supps:!!quickData.supps,caffeine_cutoff:!!quickData.caffeine,
     skincare_am:!!quickData['skincare-am'],skincare_pm:!!quickData['skincare-pm'],
     ate_consistently:!!quickData.ate,wind_down_cutoff:!!quickData['wind-down'],protein_hit:!!quickData['protein-hit'],
+    meals:{breakfast:getQuickMealVal('breakfast'),lunch:getQuickMealVal('lunch'),dinner:getQuickMealVal('dinner'),snack:getQuickMealVal('snack')},
     arm_measurement:null,notes:null};
   const status=document.getElementById('checkin-status');
   try{await ghPut(`${CONFIG.path}${today}.json`,data,`checkin ${today}`);status.className='status ok';status.textContent='✓ Saved!';showSuccess();loadHistory();}
@@ -526,15 +531,24 @@ function toggleFullForm(){const q=document.getElementById('quick-mode'),f=docume
 renderQuickCard();
 
 // Goals
-let goalsDB={};
-async function loadGoals(){try{const r=await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/goals.json`,{headers:{'Authorization':`token ${CONFIG.token}`}});if(!r.ok)return;goalsDB=JSON.parse(decodeURIComponent(escape(atob((await r.json()).content))));renderGoals();}catch(e){}}
+let goalsDB={};let tasksDB=[];let xpRulesDB={};
+async function loadGoals(){try{
+  const [gr,tr,xr]=await Promise.all([
+    fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/goals.json`,{headers:{'Authorization':`token ${CONFIG.token}`}}),
+    fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/tasks.json`,{headers:{'Authorization':`token ${CONFIG.token}`}}),
+    fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/config/xp-rules.json`,{headers:{'Authorization':`token ${CONFIG.token}`}})
+  ]);
+  if(gr.ok)goalsDB=JSON.parse(decodeURIComponent(escape(atob((await gr.json()).content))));
+  if(tr.ok)tasksDB=JSON.parse(decodeURIComponent(escape(atob((await tr.json()).content))));
+  if(xr.ok)xpRulesDB=JSON.parse(decodeURIComponent(escape(atob((await xr.json()).content))));
+  renderGoals();}catch(e){}}
 function renderGoals(){
   if(!goalsDB.active)return;const g=goalsDB.active;
   document.getElementById('goal-title').textContent=g.title;
   document.getElementById('goal-why').textContent=`"${g.why}"`;
   document.getElementById('goal-deadline').textContent=`Deadline: ${g.deadline}`;
   document.getElementById('goal-criteria').innerHTML=(g.success_criteria||[]).map(c=>`<div style="font-size:.85rem;color:#ccc;padding:3px 0">☐ ${c}</div>`).join('');
-  const xp=goalsDB.xp||0,rank=goalsDB.rank||'Bronze',thresholds=goalsDB.rank_thresholds||{};
+  const xp=goalsDB.xp||0,rank=goalsDB.rank||'Bronze',thresholds=xpRulesDB.rank_thresholds||{Bronze:0,Silver:500,Gold:1500,Diamond:3500,Master:7000};
   const ranks=Object.keys(thresholds),currentIdx=ranks.indexOf(rank),nextRank=ranks[currentIdx+1];
   const nextThreshold=nextRank?thresholds[nextRank]:thresholds[rank]*2,prevThreshold=thresholds[rank];
   const progress=Math.min(100,Math.max(0,((xp-prevThreshold)/(nextThreshold-prevThreshold))*100));
@@ -544,17 +558,63 @@ function renderGoals(){
   document.getElementById('xp-next').textContent=nextRank?`${nextThreshold-xp} XP to ${nextRank}`:'Max rank!';
   const achievements=goalsDB.achievements||[];
   if(achievements.length){document.getElementById('no-achievements').style.display='none';document.getElementById('achievements-list').innerHTML=achievements.map(a=>`<div class="badge"><span class="icon">${a.icon}</span>${a.name}</div>`).join('');}
-  const ipItems=goalsDB.in_progress||[];
-  document.getElementById('in-progress-list').innerHTML=ipItems.map((item,i)=>`<div class="ip-item ${item.status==='done'?'done':''}" onclick="toggleIP(${i})"><input type="checkbox" ${item.status==='done'?'checked':''} onclick="event.stopPropagation();toggleIP(${i})"><span>${item.text}</span></div>`).join('');
+  document.getElementById('in-progress-list').innerHTML=tasksDB.map((item,i)=>`<div class="ip-item ${item.status==='done'?'done':''}" onclick="toggleIP(${i})"><input type="checkbox" ${item.status==='done'?'checked':''} onclick="event.stopPropagation();toggleIP(${i})"><span>${item.text}</span></div>`).join('');
   document.getElementById('upcoming-goals').innerHTML=(goalsDB.upcoming||[]).map(u=>`<div class="upcoming-goal"><h4>${u.title}</h4><p>${u.why}</p><p style="color:#00d4aa;font-size:.75rem">Target: ${u.deadline}</p></div>`).join('');
 }
 loadGoals();
-async function toggleIP(idx){if(!goalsDB.in_progress?.[idx])return;goalsDB.in_progress[idx].status=goalsDB.in_progress[idx].status==='done'?'in_progress':'done';renderGoals();try{await ghPut('goals.json',goalsDB,'update in-progress');}catch(e){}}
+async function toggleIP(idx){if(!tasksDB[idx])return;tasksDB[idx].status=tasksDB[idx].status==='done'?'in_progress':'done';renderGoals();try{await ghPut('tasks.json',tasksDB,'update task status');}catch(e){}}
 
 // Meals
-async function loadMeals(){try{const r=await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/meals.json`,{headers:{'Authorization':`token ${CONFIG.token}`}});if(!r.ok)return;const mealsDB=JSON.parse(decodeURIComponent(escape(atob((await r.json()).content))));['breakfast','lunch','dinner','snack'].forEach(slot=>{const sel=document.getElementById('meal-'+slot);if(!sel||!mealsDB[slot])return;mealsDB[slot].forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;sel.appendChild(o);});const other=document.createElement('option');other.value='other';other.textContent='Other';sel.appendChild(other);});}catch(e){}}
+async function loadMeals(){try{const r=await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/meals.json`,{headers:{'Authorization':`token ${CONFIG.token}`}});if(!r.ok)return;const mealsDB=JSON.parse(decodeURIComponent(escape(atob((await r.json()).content))));quickMealsDB=mealsDB;['breakfast','lunch','dinner','snack'].forEach(slot=>{const sel=document.getElementById('meal-'+slot);if(!sel||!mealsDB[slot])return;mealsDB[slot].forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;sel.appendChild(o);});const other=document.createElement('option');other.value='__other__';other.textContent='Other (type below)';sel.appendChild(other);sel.addEventListener('change',function(){const custom=document.getElementById('meal-'+slot+'-custom');if(this.value==='__other__'){custom.style.display='block';custom.focus();}else{custom.style.display='none';custom.value='';}});});}catch(e){}}
 loadMeals();
 loadHistory();
+
+// Protocol (auto-generated from data files)
+async function loadProtocol(){
+  try{
+    const [suppR,skinR,nutR,progR,recR]=await Promise.all([
+      fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/skills/supplements.md`,{headers:{'Authorization':`token ${CONFIG.token}`}}),
+      fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/state/skincare-protocol.md`,{headers:{'Authorization':`token ${CONFIG.token}`}}),
+      fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/skills/nutrition.md`,{headers:{'Authorization':`token ${CONFIG.token}`}}),
+      fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/program.json`,{headers:{'Authorization':`token ${CONFIG.token}`}}),
+      fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/state/recipes.md`,{headers:{'Authorization':`token ${CONFIG.token}`}})
+    ]);
+    const supp=suppR.ok?decodeURIComponent(escape(atob((await suppR.json()).content))):'';
+    const skin=skinR.ok?decodeURIComponent(escape(atob((await skinR.json()).content))):'';
+    const nut=nutR.ok?decodeURIComponent(escape(atob((await nutR.json()).content))):'';
+    const prog=progR.ok?JSON.parse(decodeURIComponent(escape(atob((await progR.json()).content)))):null;
+    const rec=recR.ok?decodeURIComponent(escape(atob((await recR.json()).content))):'';
+
+    let html='';
+    const morningMatch=supp.match(/### Morning\/Afternoon\n([\s\S]*?)(?=###|## Considered)/);
+    const preMatch=supp.match(/### Pre-Training\n([\s\S]*?)(?=###|## Considered)/);
+    const bedMatch=supp.match(/### Before Bed\n([\s\S]*?)(?=###|## Considered)/);
+    const skinAM=skin.match(/## AM Routine[\s\S]*?\n([\s\S]*?)(?=## |$)/);
+    const skinPM=skin.match(/## PM Routine[\s\S]*?\n([\s\S]*?)(?=## |$)/);
+    function mdListToHtml(md){if(!md)return'';return md.split('\n').filter(l=>l.trim().startsWith('-')).map(l=>`<li>${l.replace(/^-\s*/,'')}</li>`).join('');}
+    html+=`<div class="protocol-section"><h3>☀️ Morning</h3><ul>${mdListToHtml(morningMatch?.[1]||'')}`;
+    if(skinAM)html+=`<li>Skincare: ${skinAM[1].split('\n').filter(l=>l.trim().match(/^\d/)).map(l=>l.replace(/^\d+\.\s*/,'')).join(' → ')}</li>`;
+    html+=`</ul></div>`;
+    if(preMatch)html+=`<div class="protocol-section"><h3>🏋️ Pre-Workout</h3><ul>${mdListToHtml(preMatch[1])}</ul></div>`;
+    html+=`<div class="protocol-section"><h3>🌙 Evening</h3><ul>${mdListToHtml(bedMatch?.[1]||'')}`;
+    html+=`<li>Caffeine cutoff by 4-5pm</li>`;
+    if(skinPM)html+=`<li>Skincare: ${skinPM[1].split('\n').filter(l=>l.trim().match(/^\d/)).map(l=>l.replace(/^\d+\.\s*/,'')).join(' → ')}</li>`;
+    html+=`</ul></div>`;
+    const nutSection=nut.match(/## Current Protocol[\s\S]*?\n([\s\S]*?)(?=## |$)/);
+    if(nutSection)html+=`<div class="protocol-section"><h3>🍗 Nutrition</h3><ul>${mdListToHtml(nutSection[1])}</ul><p style="font-size:.7rem;color:#666;margin-top:8px">No dairy · No onion · No garlic · No spice · Low oxalate</p></div>`;
+    if(prog&&prog.sessions){
+      html+=`<div class="protocol-section"><h3>🏋️ Training (3x/week)</h3><ul>`;
+      Object.keys(prog.sessions).forEach(s=>{html+=`<li><strong>${s}</strong></li>`;});
+      html+=`</ul></div>`;
+    }
+    if(rec){
+      const recipeLines=rec.split('\n').filter(l=>l.trim().startsWith('-')).map(l=>l.replace(/^-\s*/,'').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>'));
+      if(recipeLines.length)html+=`<div class="protocol-section"><h3>🍳 Recipes</h3><ul>${recipeLines.map(r=>`<li>${r}</li>`).join('')}</ul><p style="font-size:.7rem;color:#666;margin-top:8px">No dairy · No onion · No garlic · No spice · Low oxalate</p></div>`;
+    }
+    document.getElementById('protocol-content').innerHTML=html||'<p style="color:#666">Could not load protocol data.</p>';
+  }catch(e){document.getElementById('protocol-content').innerHTML='<p style="color:#ff6b6b">Error loading protocol.</p>';}
+}
+loadProtocol();
 
 // GitHub helper
 async function ghPut(path,data,msg){const content=btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2))));let sha=null;const g=await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${path}`,{headers:{'Authorization':`token ${CONFIG.token}`}});if(g.ok)sha=(await g.json()).sha;const body={message:msg,content,branch:'main'};if(sha)body.sha=sha;const r=await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${path}`,{method:'PUT',headers:{'Authorization':`token ${CONFIG.token}`,'Content-Type':'application/json'},body:JSON.stringify(body)});if(!r.ok)throw new Error((await r.json()).message);}
