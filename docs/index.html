@@ -184,6 +184,7 @@ button:disabled{background:#555;color:#999;transform:none}
       <div class="check-row"><input type="checkbox" id="ate"><label for="ate">Ate consistently (no fasting)</label></div>
       <div class="check-row"><input type="checkbox" id="wind-down"><label for="wind-down">Evening wind-down cutoff</label></div>
       <div class="check-row"><input type="checkbox" id="protein-hit"><label for="protein-hit">Hit 130g+ protein</label></div>
+      <div class="check-row"><input type="checkbox" id="walked"><label for="walked">Walked sufficiently (~10k steps)</label></div>
     </div>
     <div class="section"><h2>Meals</h2>
       <div class="field"><label>Breakfast</label><select id="meal-breakfast"><option value="">Select...</option></select><input type="text" id="meal-breakfast-custom" placeholder="What did you eat?" style="display:none;margin-top:6px"></div>
@@ -205,10 +206,12 @@ button:disabled{background:#555;color:#999;transform:none}
       <option value="Day 1: Push + Arms">Day 1: Push + Arms</option>
       <option value="Day 2: Pull + Arms">Day 2: Pull + Arms</option>
       <option value="Day 3: Arms + Shoulders">Day 3: Arms + Shoulders</option>
+      <option value="Custom">Custom / Freeform</option>
     </select>
   </div>
   <div id="prev-session-note"></div>
   <div id="exercises"></div>
+  <button class="btn-secondary" onclick="addCustomExercise()" id="add-exercise-btn" style="display:none;margin-top:8px">+ Add exercise</button>
   <button onclick="submitTraining()" id="save-training-btn" style="display:none">Save Training Log</button>
   <div id="training-status"></div>
   <div class="section" id="training-history"><h2>Recent Sessions</h2></div>
@@ -362,6 +365,7 @@ async function loadDayForEdit(date){
   document.getElementById('ate').checked=!!entry.ate_consistently;
   document.getElementById('wind-down').checked=!!entry.wind_down_cutoff;
   document.getElementById('protein-hit').checked=!!entry.protein_hit;
+  document.getElementById('walked').checked=!!entry.walked;
   document.getElementById('notes').value=entry.notes||'';
 }
 function backToToday(){
@@ -370,7 +374,7 @@ function backToToday(){
   document.getElementById('sleep-duration').textContent='';document.getElementById('sleep-duration').className='sleep-calc';
   document.getElementById('energy').value=0;document.getElementById('energy-val').textContent='—';
   document.getElementById('recovery').value=0;document.getElementById('recovery-val').textContent='—';
-  ['trained','supps','caffeine','skincare-am','skincare-pm','ate','wind-down','protein-hit'].forEach(id=>document.getElementById(id).checked=false);
+  ['trained','supps','caffeine','skincare-am','skincare-pm','ate','wind-down','protein-hit','walked'].forEach(id=>document.getElementById(id).checked=false);
   document.getElementById('notes').value='';
 }
 
@@ -385,7 +389,7 @@ async function submitCheckin(){
     trained:document.getElementById('trained').checked,supps:document.getElementById('supps').checked,
     caffeine_cutoff:document.getElementById('caffeine').checked,skincare_am:document.getElementById('skincare-am').checked,
     skincare_pm:document.getElementById('skincare-pm').checked,ate_consistently:document.getElementById('ate').checked,
-    wind_down_cutoff:document.getElementById('wind-down').checked,protein_hit:document.getElementById('protein-hit').checked,
+    wind_down_cutoff:document.getElementById('wind-down').checked,protein_hit:document.getElementById('protein-hit').checked,walked:document.getElementById('walked').checked,
     meals:{breakfast:getMealVal('breakfast'),lunch:getMealVal('lunch'),dinner:getMealVal('dinner'),snack:getMealVal('snack')},
     arm_measurement:document.getElementById('arm-measure')?.value||null,notes:document.getElementById('notes').value||null};
   const status=document.getElementById('checkin-status');
@@ -401,8 +405,10 @@ loadProgramDB();
 
 async function loadSession(){
   const session=document.getElementById('train-session').value;
-  if(!session){document.getElementById('exercises').innerHTML='';document.getElementById('save-training-btn').style.display='none';return;}
+  if(!session){document.getElementById('exercises').innerHTML='';document.getElementById('save-training-btn').style.display='none';document.getElementById('add-exercise-btn').style.display='none';return;}
   document.getElementById('save-training-btn').style.display='block';
+  document.getElementById('add-exercise-btn').style.display='block';
+  if(session==='Custom'){exercises=[];document.getElementById('prev-session-note').innerHTML='<div class="prev-data">Freeform session — add any exercises.</div>';renderExercises();return;}
   const template=programDB.sessions?.[session]||[];const prevData=await getLastSession(session);
   exercises=template.map((ex,i)=>{const prev=prevData?.[i];const sets=[];
     for(let s=0;s<ex.sets;s++)sets.push({weight:prev?.sets?.[s]?.weight||'',reps:prev?.sets?.[s]?.reps||''});
@@ -425,6 +431,7 @@ function renderExercises(){
   document.getElementById('exercises').innerHTML=html;
 }
 function addSet(i){const lastSet=exercises[i].sets[exercises[i].sets.length-1];exercises[i].sets.push({weight:lastSet?.weight||'',reps:lastSet?.reps||''});renderExercises();}
+function addCustomExercise(){const name=prompt('Exercise name:');if(!name)return;exercises.push({name,alternatives:[],targetReps:'—',sets:[{weight:'',reps:''},{weight:'',reps:''},{weight:'',reps:''}],prev:null});renderExercises();}
 function incrementWeight(i,j){const inc=programDB.increment||2.5;const c=parseFloat(exercises[i].sets[j].weight)||0;exercises[i].sets[j].weight=(c+inc).toString();document.getElementById(`ex${i}s${j}w`).value=exercises[i].sets[j].weight;}
 
 async function submitTraining(){
@@ -448,7 +455,7 @@ async function generateReview(){
   let weightTrend=weights.length>=2?`${weights[weights.length-1]}→${weights[0]}kg`:(weights[0]?weights[0]+'kg':'No data');
   let proteinDays=week.filter(e=>e.protein_hit).length;
   let review=`WEEKLY REVIEW (${week.length} days)\n═══════════════════════════\nDays trained: ${trainedDays}/3 target\nAvg energy: ${avgEnergy}/10\nAvg recovery: ${avgRecovery}/10\nWeight: ${weightTrend}\nProtein hit: ${proteinDays}/${week.length} days\n═══════════════════════════\n`;
-  week.forEach(e=>{const checks=[e.supps,e.caffeine_cutoff,e.skincare_am,e.skincare_pm,e.ate_consistently,e.wind_down_cutoff,e.protein_hit];const pct=Math.round(checks.filter(Boolean).length/checks.length*100);review+=`${e.date}: E${e.energy||'-'} R${e.arm_recovery||'-'} ${e.trained?'🏋️':'  '} ${pct}%${e.notes?' — '+e.notes:''}\n`;});
+  week.forEach(e=>{const checks=[e.supps,e.caffeine_cutoff,e.skincare_am,e.skincare_pm,e.ate_consistently,e.wind_down_cutoff,e.protein_hit,e.walked];const pct=Math.round(checks.filter(Boolean).length/checks.length*100);review+=`${e.date}: E${e.energy||'-'} R${e.arm_recovery||'-'} ${e.trained?'🏋️':'  '} ${pct}%${e.notes?' — '+e.notes:''}\n`;});
   review+=`\nDays until goal: ${daysLeft}`;
   document.getElementById('review-content').textContent=review;
 }
@@ -466,7 +473,7 @@ async function loadHistory(){
   entries.slice(0,5).forEach(d=>{const checks=[d.supps,d.caffeine_cutoff,d.skincare_am,d.skincare_pm,d.ate_consistently,d.wind_down_cutoff];const pct=Math.round(checks.filter(Boolean).length/checks.length*100);
     html+=`<div class="card interactive" onclick="loadDayForEdit('${d.date}')"><div class="date"><span>${d.date} ${d.trained?'🏋️':''}</span><span class="edit-hint">tap to edit</span></div><div class="details">`;
     if(d.weight)html+=`${d.weight}kg · `;html+=`E${d.energy||'-'}/10 · R${d.arm_recovery||'-'}/10 · ${pct}%</div></div>`;});
-  if(entries.length>=3){const trained=entries.filter(e=>e.trained).length;const avgAdh=Math.round(entries.reduce((s,e)=>{const c=[e.supps,e.caffeine_cutoff,e.skincare_am,e.skincare_pm,e.ate_consistently,e.wind_down_cutoff];return s+c.filter(Boolean).length/c.length;},0)/entries.length*100);
+  if(entries.length>=3){const trained=entries.filter(e=>e.trained).length;const avgAdh=Math.round(entries.reduce((s,e)=>{const c=[e.supps,e.caffeine_cutoff,e.skincare_am,e.skincare_pm,e.ate_consistently,e.wind_down_cutoff,e.walked];return s+c.filter(Boolean).length/c.length;},0)/entries.length*100);
     html+=`<div class="weekly-summary"><h3>Summary</h3><div class="stat"><span>Sessions</span><span class="stat-val">${trained}</span></div><div class="stat"><span>Adherence</span><span class="stat-val">${avgAdh}%</span></div></div>`;}
   document.getElementById('history').innerHTML=html;
 }
@@ -483,7 +490,7 @@ const quickSteps=[
   {id:'adherence',title:'✓ Adherence',type:'checks',items:[
     {id:'trained',label:'Trained'},{id:'supps',label:'Supplements'},{id:'caffeine',label:'Caffeine cutoff'},
     {id:'skincare-am',label:'AM skincare'},{id:'skincare-pm',label:'PM skincare'},
-    {id:'ate',label:'Ate consistently'},{id:'wind-down',label:'Wind-down cutoff'},{id:'protein-hit',label:'130g+ protein'}]},
+    {id:'ate',label:'Ate consistently'},{id:'wind-down',label:'Wind-down cutoff'},{id:'protein-hit',label:'130g+ protein'},{id:'walked',label:'Walked sufficiently'}]},
   {id:'meals',title:'🍽️ Meals',type:'meals'},
   {id:'done',title:'🚀 Submit',type:'submit'}
 ];
@@ -506,7 +513,7 @@ function renderQuickCard(){
       h+=`<div><label style="font-size:.8rem;color:#aaa;margin-bottom:2px">${slot.charAt(0).toUpperCase()+slot.slice(1)}</label><select style="width:100%;padding:8px;border-radius:8px;border:1px solid #333;background:#1a1a2e;color:#eee;font-size:.9rem" onchange="quickData['meal_${slot}']=this.value;this.nextElementSibling.style.display=this.value==='__other__'?'block':'none'"><option value="">—</option>${opts}<option value="__other__">Other</option></select><input type="text" placeholder="What did you eat?" style="display:${isCustom?'block':'none'};margin-top:4px;padding:8px;border-radius:8px;border:1px solid #333;background:#16213e;color:#eee;font-size:.9rem;width:100%" onchange="quickData['meal_${slot}_custom']=this.value"></div>`;
     });
     card.innerHTML=h+'</div>';}
-  else if(step.type==='submit'){const checks=['trained','supps','caffeine','skincare-am','skincare-pm','ate','wind-down','protein-hit'];const done=checks.filter(c=>quickData[c]).length;card.innerHTML=`<h3>Ready to submit</h3><div style="text-align:center;color:#aaa;font-size:.9rem;line-height:2"><p>Weight: ${quickData.weight||'—'}kg</p><p>Sleep: ${quickData.bed||'—'} → ${quickData.wake||'—'}</p><p>Energy: ${quickData.energy||'—'}/10 · Recovery: ${quickData.recovery||'—'}/10</p><p>Adherence: ${done}/${checks.length} ✓</p></div>`;}
+  else if(step.type==='submit'){const checks=['trained','supps','caffeine','skincare-am','skincare-pm','ate','wind-down','protein-hit','walked'];const done=checks.filter(c=>quickData[c]).length;card.innerHTML=`<h3>Ready to submit</h3><div style="text-align:center;color:#aaa;font-size:.9rem;line-height:2"><p>Weight: ${quickData.weight||'—'}kg</p><p>Sleep: ${quickData.bed||'—'} → ${quickData.wake||'—'}</p><p>Energy: ${quickData.energy||'—'}/10 · Recovery: ${quickData.recovery||'—'}/10</p><p>Adherence: ${done}/${checks.length} ✓</p></div>`;}
 }
 function qSleepCalc(){const bed=document.getElementById('q-bed')?.value,wake=document.getElementById('q-wake')?.value;const el=document.getElementById('q-sleep-dur');if(!el)return;if(!bed||!wake){el.textContent='';el.className='sleep-calc';return;}let[bh,bm]=bed.split(':').map(Number),[wh,wm]=wake.split(':').map(Number);let mins=(wh*60+wm)-(bh*60+bm);if(mins<=0)mins+=1440;el.textContent=`${Math.floor(mins/60)}h ${mins%60}m`;el.className=mins>=420?'sleep-calc sleep-good':mins>=360?'sleep-calc sleep-ok':'sleep-calc sleep-bad';}
 function quickNext(){if(quickStep<quickSteps.length-1){quickStep++;renderQuickCard();}else quickSubmit();}
@@ -519,7 +526,7 @@ async function quickSubmit(){
     energy:quickData.energy||null,arm_recovery:quickData.recovery||null,
     trained:!!quickData.trained,supps:!!quickData.supps,caffeine_cutoff:!!quickData.caffeine,
     skincare_am:!!quickData['skincare-am'],skincare_pm:!!quickData['skincare-pm'],
-    ate_consistently:!!quickData.ate,wind_down_cutoff:!!quickData['wind-down'],protein_hit:!!quickData['protein-hit'],
+    ate_consistently:!!quickData.ate,wind_down_cutoff:!!quickData['wind-down'],protein_hit:!!quickData['protein-hit'],walked:!!quickData.walked,
     meals:{breakfast:getQuickMealVal('breakfast'),lunch:getQuickMealVal('lunch'),dinner:getQuickMealVal('dinner'),snack:getQuickMealVal('snack')},
     arm_measurement:null,notes:null};
   const status=document.getElementById('checkin-status');
